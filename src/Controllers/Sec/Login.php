@@ -55,6 +55,7 @@ class Login extends \Controllers\PublicController
                             $dbUser["username"],
                             $dbUser["useremail"]
                         );
+                        \Utilities\Nav::invalidateNavData();
                         if (\Utilities\Context::getContextByKey("redirto") !== "") {
                             \Utilities\Site::redirectTo(
                                 \Utilities\Context::getContextByKey("redirto")

@@ -1,36 +1,30 @@
 <?php
-/**
- * PHP Version 7.2
- *
- * @category Public
- * @package  Controllers
- * @author   Orlando J Betancourth <orlando.betancourth@gmail.com>
- * @license  MIT http://
- * @version  CVS:1.0.0
- * @link     http://
- */
 namespace Controllers;
 
-/**
- * Index Controller
- *
- * @category Public
- * @package  Controllers
- * @author   Orlando J Betancourth <orlando.betancourth@gmail.com>
- * @license  MIT http://
- * @link     http://
- */
 class Index extends PublicController
 {
-    /**
-     * Index run method
-     *
-     * @return void
-     */
     public function run() :void
     {
-        $viewData = array();
+        $destacados = \Dao\Products\Products::getDestacados();
+        $ofertas    = \Dao\Products\Products::getOfertas();
+
+        foreach ($destacados as &$p) {
+            $p['isAgotado'] = ($p['productStock'] <= 0 || $p['productStatus'] === 'AGO') ? 1 : 0;
+            $p['hasSale']   = isset($p['hasSale']) ? (int)$p['hasSale'] : 0;
+        }
+        unset($p);
+
+        foreach ($ofertas as &$p) {
+            $p['isAgotado'] = ($p['productStock'] <= 0 || $p['productStatus'] === 'AGO') ? 1 : 0;
+            $p['hasSale']   = 1;
+        }
+        unset($p);
+
+        $viewData = [
+            'destacados' => $destacados,
+            'ofertas'    => $ofertas,
+        ];
+
         \Views\Renderer::render("index", $viewData);
     }
 }
-?>

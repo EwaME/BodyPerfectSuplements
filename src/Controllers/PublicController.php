@@ -39,6 +39,8 @@ abstract class PublicController implements IController
                 );
                 \Utilities\Nav::setNavContext();
             }
+        } else {
+            \Utilities\Context::setContext("login", 0);
         }
     }
     /**
