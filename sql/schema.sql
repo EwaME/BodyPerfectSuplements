@@ -251,12 +251,13 @@ INSERT IGNORE INTO `categories` (`categoryId`, `categoryName`, `categoryDescript
 
 -- Productos de prueba
 INSERT IGNORE INTO `products` (`productId`, `productName`, `productDescription`, `productPrice`, `productImgUrl`, `productStock`, `productStatus`, `categoryId`) VALUES
-    (1, 'Whey Gold Standard 5lb',    'Proteína whey de alta calidad, 24g por porción.',   85.00, 'whey_gold.jpg', 50, 'ACT', 4),
-    (2, 'Proteína Vegana Pea 2lb',   'Proteína de guisante 100% vegana, sin lactosa.',     62.00, 'pea_protein.jpg', 30, 'ACT', 5),
-    (3, 'Pre-Entreno N.O. Xplode',   'Máxima energía y bombeo muscular.',                 45.00, 'no_xplode.jpg',  40, 'ACT', 2),
-    (4, 'Caseína Micelar 4lb',       'Proteína de liberación lenta ideal para la noche.', 75.00, 'casein.jpg',     20, 'ACT', 6),
-    (5, 'Vitamina C 1000mg x90',     'Refuerzo inmunológico, 90 cápsulas.',                12.00, 'vit_c.jpg',     100, 'ACT', 3),
-    (6, 'Multivitamínico Sport x60', 'Complejo vitamínico para deportistas.',              18.00, 'multi.jpg',      80, 'ACT', 3);
+    (1, 'Whey Gold Standard 5lb',    'Proteína whey de alta calidad, 24g por porción.',   85.00, 'p6a6ffc42971824.10737467.png', 50, 'ACT', 4),
+    (2, 'Proteína Vegana Pea 2lb',   'Proteína de guisante 100% vegana, sin lactosa.',     62.00, 'p6a6ffc3e141f37.83416368.png', 30, 'ACT', 5),
+    (3, 'Pre-Entreno N.O. Xplode',   'Máxima energía y bombeo muscular.',                 45.00, 'p6a6ffc3812cfa8.18191402.jpg',  40, 'ACT', 2),
+    (4, 'Caseína Micelar 4lb',       'Proteína de liberación lenta ideal para la noche.', 75.00, 'p6a6ffbd9c1cad6.38587830.jpg',     20, 'ACT', 6),
+    (5, 'Vitamina C 1000mg x90',     'Refuerzo inmunológico, 90 cápsulas.',                12.00, 'p6a6ffbcf4f0012.60461186.jpg',     100, 'ACT', 3),
+    (6, 'Multivitamínico Sport x60', 'Complejo vitamínico para deportistas.',              18.00, NULL,      80, 'ACT', 3),
+    (7, 'Creatina Monohidratada 300g', 'Creatina pura, aumenta fuerza y rendimiento.',      28.00, NULL,      4, 'ACT', 1);
 
 -- Destacados activos (fechas fijas para evitar problemas de timezone en import)
 INSERT IGNORE INTO `highlights` (`productId`, `highlightStart`, `highlightEnd`) VALUES

@@ -10,6 +10,7 @@ class Site
         \Utilities\Context::setArrayToContext($donenv->load());
         date_default_timezone_set(\Utilities\Context::getContextByKey("TIMEZONE"));
         \Utilities\Context::setContext('CURRENT_YEAR', date("Y"));
+        \Utilities\Context::setContext('ASSET_V', file_exists("public/css/tienda.css") ? filemtime("public/css/tienda.css") : time());
     }
     public static function getPageRequest()
     {

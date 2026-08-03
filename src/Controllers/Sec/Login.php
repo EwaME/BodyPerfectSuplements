@@ -55,6 +55,9 @@ class Login extends \Controllers\PublicController
                             $dbUser["username"],
                             $dbUser["useremail"]
                         );
+                        if (!empty($_COOKIE["bp_anoncod"])) {
+                            \Dao\Cart\Cart::mergeAnonToAuth($_COOKIE["bp_anoncod"], $dbUser["usercod"]);
+                        }
                         \Utilities\Nav::invalidateNavData();
                         if (\Utilities\Context::getContextByKey("redirto") !== "") {
                             \Utilities\Site::redirectTo(

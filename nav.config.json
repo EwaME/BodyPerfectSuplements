@@ -6,6 +6,11 @@
       "nav_label": "<i class=\"fas fa-store\"></i>&nbsp;Catálogo"
     },
     {
+      "id": "Menu_Cart",
+      "nav_url": "index.php?page=Checkout_Cart",
+      "nav_label": "<i class=\"fas fa-shopping-cart\"></i>&nbsp;Carrito"
+    },
+    {
       "id": "Menu_SignIn",
       "nav_url": "index.php?page=Sec_Login",
       "nav_label": "<i class=\"fas fa-sign-in-alt\"></i>&nbsp;Iniciar Sesión"
@@ -23,8 +28,8 @@
       "nav_label": "<i class=\"fas fa-store\"></i>&nbsp;Catálogo"
     },
     {
-      "id": "Menu_PaymentCheckout",
-      "nav_url": "index.php?page=Checkout_Checkout",
+      "id": "Menu_Cart",
+      "nav_url": "index.php?page=Checkout_Cart",
       "nav_label": "<i class=\"fas fa-shopping-cart\"></i>&nbsp;Carrito"
     },
     {

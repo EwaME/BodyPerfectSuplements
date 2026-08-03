@@ -41,23 +41,26 @@
           {{endfor categorias}}
         </div>
 
-        <div class="bp-sidebar-section">
-          <div class="bp-sidebar-title">Rango de Precio</div>
-          <div class="bp-range-wrap">
-            <div class="bp-range-track">
-              <div class="bp-range-fill" id="bp-range-fill"></div>
-            </div>
-            <input type="range" id="bp-range-min" class="bp-range-input"
-                   min="0" max="{{maxPriceSlider}}" value="{{sliderMin}}" step="50" />
-            <input type="range" id="bp-range-max" class="bp-range-input"
-                   min="0" max="{{maxPriceSlider}}" value="{{sliderMax}}" step="50" />
+        <div class="bp-sidebar-section bp-price-section">
+          <div class="bp-sidebar-title"><i class="fas fa-coins"></i>&nbsp;Rango de Precio</div>
+          <div class="bp-price-inputs">
+            <label class="bp-price-field">
+              <span class="bp-price-currency">L.</span>
+              <input type="number" id="bp-price-min" name="minPrice" min="0" step="1"
+                     placeholder="0" value="{{minPrice}}" />
+            </label>
+            <span class="bp-price-sep"><i class="fas fa-arrow-right-long"></i></span>
+            <label class="bp-price-field">
+              <span class="bp-price-currency">L.</span>
+              <input type="number" id="bp-price-max" name="maxPrice" min="0" step="1"
+                     placeholder="{{maxPriceSlider}}" value="{{maxPrice}}" />
+            </label>
           </div>
-          <div class="bp-range-vals">
-            <span style="color:var(--bp-accent);font-weight:700;">L. <span id="bp-range-min-num">{{sliderMin}}</span></span>
-            <span style="color:var(--bp-accent);font-weight:700;">L. <span id="bp-range-max-num">{{sliderMax}}</span></span>
+          <div class="bp-price-presets">
+            <button type="button" class="bp-price-chip" data-min="" data-max="30">Menos de L.30</button>
+            <button type="button" class="bp-price-chip" data-min="30" data-max="60">L.30 – L.60</button>
+            <button type="button" class="bp-price-chip" data-min="60" data-max="">Más de L.60</button>
           </div>
-          <input type="hidden" id="bp-filter-min" name="minPrice" value="{{minPrice}}" />
-          <input type="hidden" id="bp-filter-max" name="maxPrice" value="{{maxPrice}}" />
         </div>
       </aside>
 
@@ -110,15 +113,8 @@
   var clearBtn  = document.getElementById('bp-search-clear');
   var dropdown  = document.getElementById('bp-search-dropdown');
   var cats      = form.querySelectorAll('input[name="cat"]');
-  // slider
-  var rMin      = document.getElementById('bp-range-min');
-  var rMax      = document.getElementById('bp-range-max');
-  var rFill     = document.getElementById('bp-range-fill');
-  var rMinNum   = document.getElementById('bp-range-min-num');
-  var rMaxNum   = document.getElementById('bp-range-max-num');
-  var hidMin    = document.getElementById('bp-filter-min');
-  var hidMax    = document.getElementById('bp-filter-max');
-  var slMax     = parseInt(rMin.max);
+  var priceMin  = document.getElementById('bp-price-min');
+  var priceMax  = document.getElementById('bp-price-max');
   var submitTimer, acTimer;
 
   /* helpers */
@@ -140,21 +136,30 @@
     submitTimer = setTimeout(submitForm, 420);
   }
 
-  /* slider */
-  function updateSlider() {
-    var lo = parseInt(rMin.value);
-    var hi = parseInt(rMax.value);
-    if (lo > hi) { var t = lo; lo = hi; hi = t; rMin.value = lo; rMax.value = hi; }
-    rFill.style.left  = (lo / slMax * 100) + '%';
-    rFill.style.width = ((hi - lo) / slMax * 100) + '%';
-    rMinNum.textContent = lo.toLocaleString();
-    rMaxNum.textContent = hi.toLocaleString();
-    hidMin.value = lo > 0    ? lo : '';
-    hidMax.value = hi < slMax ? hi : '';
+  /* precio */
+  function normalizePrice() {
+    var lo = priceMin.value !== '' ? parseFloat(priceMin.value) : null;
+    var hi = priceMax.value !== '' ? parseFloat(priceMax.value) : null;
+    if (lo !== null && hi !== null && lo > hi) {
+      priceMin.value = hi;
+      priceMax.value = lo;
+    }
   }
-  updateSlider();
-  rMin.addEventListener('input', function () { updateSlider(); debounceSubmit(); });
-  rMax.addEventListener('input', function () { updateSlider(); debounceSubmit(); });
+  [priceMin, priceMax].forEach(function (el) {
+    el.addEventListener('change', function () { normalizePrice(); submitForm(); });
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); normalizePrice(); submitForm(); }
+    });
+  });
+
+  /* chips de precio rápido */
+  form.querySelectorAll('.bp-price-chip').forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      priceMin.value = chip.dataset.min || '';
+      priceMax.value = chip.dataset.max || '';
+      submitForm();
+    });
+  });
 
   /* clear button */
   function updateClear() { clearBtn.style.display = searchVis.value ? 'flex' : 'none'; }
