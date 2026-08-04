@@ -32,6 +32,14 @@ class Register extends PublicController
             if (!$this->hasErrors) {
                 try{
                     if (\Dao\Security\Security::newUsuario($this->txtEmail, $this->txtPswd)) {
+                        $nuevoUsuario = \Dao\Security\Security::getUsuarioByEmail($this->txtEmail);
+                        \Dao\Security\Security::registrarBitacora(
+                            \Dao\Security\BitacoraTipo::AUDITORIA,
+                            self::class,
+                            "Registro de nuevo usuario",
+                            "ip=" . ($_SERVER["REMOTE_ADDR"] ?? "desconocida"),
+                            $nuevoUsuario ? $nuevoUsuario["usercod"] : null
+                        );
                         \Utilities\Site::redirectToWithMsg("index.php?page=sec_login", "¡Usuario Registrado Satisfactoriamente!");
                     }
                 } catch (Error $ex){

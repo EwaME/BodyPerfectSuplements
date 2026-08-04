@@ -93,6 +93,63 @@ class Security extends \Dao\Table
         return self::obtenerUnRegistro($sqlstr, $params);
     }
 
+    static public function getUsuarioById($usercod)
+    {
+        $sqlstr = "SELECT * from `usuario` where `usercod` = :usercod ;";
+        $params = array("usercod"=>$usercod);
+
+        return self::obtenerUnRegistro($sqlstr, $params);
+    }
+
+    /**
+     * Inserta un registro de auditoría en bitacora. Se usa para login exitoso,
+     * intentos fallidos, bloqueos temporales, cierres de sesión y cambios de
+     * estado de usuario (ver REGLAS-PROYECTO.md sección 5 / plan Módulo D).
+     */
+    static public function registrarBitacora($bitTipo, $bitprograma, $bitdescripcion, $bitobservacion = null, $usercod = null)
+    {
+        $sqlIns = "INSERT INTO `bitacora`
+            (`bitacorafch`, `bitprograma`, `bitdescripcion`, `bitobservacion`, `bitTipo`, `bitusuario`)
+            VALUES
+            (now(), :bitprograma, :bitdescripcion, :bitobservacion, :bitTipo, :bitusuario);";
+
+        return self::executeNonQuery(
+            $sqlIns,
+            array(
+                "bitprograma" => $bitprograma,
+                "bitdescripcion" => $bitdescripcion,
+                "bitobservacion" => $bitobservacion,
+                "bitTipo" => $bitTipo,
+                "bitusuario" => $usercod,
+            )
+        );
+    }
+
+    /**
+     * Cuenta los intentos fallidos de login (bitTipo = ERR) registrados para
+     * un correo dentro de la ventana de minutos indicada. Usado para el
+     * bloqueo temporal de cuenta tras múltiples intentos fallidos.
+     */
+    static public function contarIntentosFallidos($email, $minutos, $bitprograma)
+    {
+        $sqlstr = "SELECT COUNT(*) as total FROM `bitacora`
+            WHERE `bitprograma` = :bitprograma
+            AND `bitTipo` = :bitTipo
+            AND `bitobservacion` LIKE :emailLike
+            AND `bitacorafch` >= (NOW() - INTERVAL :minutos MINUTE);";
+
+        $resultado = self::obtenerUnRegistro(
+            $sqlstr,
+            array(
+                "bitprograma" => $bitprograma,
+                "bitTipo" => BitacoraTipo::ERROR,
+                "emailLike" => "%email=" . $email . ";%",
+                "minutos" => (int)$minutos,
+            )
+        );
+        return $resultado ? (int)$resultado["total"] : 0;
+    }
+
     static private function _saltPassword($password)
     {
         return hash_hmac(
