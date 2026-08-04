@@ -176,6 +176,12 @@ class Products extends \Dao\Table
         return self::executeNonQuery($sql, ['status' => $newStatus, 'productId' => $productId]);
     }
 
+    public static function descontarStock($productId, $cantidad)
+    {
+        $sql = "UPDATE products SET productStock = productStock - :cantidad WHERE productId = :productId;";
+        return self::executeNonQuery($sql, ['cantidad' => $cantidad, 'productId' => $productId]);
+    }
+
     public static function getMaxPrice()
     {
         $sql    = "SELECT CEIL(MAX(productPrice) / 100) * 100 as maxPrice FROM products WHERE productStatus IN ('ACT','AGO');";
