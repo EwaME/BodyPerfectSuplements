@@ -36,6 +36,11 @@
       "id": "Menu_AdminProductos",
       "nav_url": "index.php?page=Products_Admin",
       "nav_label": "<i class=\"fas fa-boxes\"></i>&nbsp;Admin Productos"
+    },
+    {
+      "id": "Menu_2FA",
+      "nav_url": "index.php?page=Sec_TwoFactorSetup",
+      "nav_label": "<i class=\"fas fa-shield-alt\"></i>&nbsp;Seguridad 2FA"
     }
   ]
 }

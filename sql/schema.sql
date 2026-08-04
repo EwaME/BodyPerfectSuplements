@@ -277,7 +277,9 @@ INSERT IGNORE INTO `funciones` (`fncod`, `fndsc`, `fnest`, `fntyp`) VALUES
     ('Controllers\\Products\\Admin',         'Admin Lista Productos',  'ACT', 'CTR'),
     ('Controllers\\Products\\Create',        'Admin Crear Producto',   'ACT', 'CTR'),
     ('Controllers\\Products\\Edit',          'Admin Editar Producto',  'ACT', 'CTR'),
-    ('Controllers\\Products\\Toggle',        'Admin Toggle Status',    'ACT', 'CTR');
+    ('Controllers\\Products\\Toggle',        'Admin Toggle Status',    'ACT', 'CTR'),
+    ('Menu_2FA',                             'Menu Configurar 2FA',    'ACT', 'MNU'),
+    ('Controllers\\Sec\\TwoFactorSetup',     'Configurar Doble Factor','ACT', 'CTR');
 
 INSERT IGNORE INTO `funciones_roles` (`rolescod`, `fncod`, `fnrolest`) VALUES
     ('ADM', 'Menu_Catalogo',                       'ACT'),
@@ -287,8 +289,13 @@ INSERT IGNORE INTO `funciones_roles` (`rolescod`, `fncod`, `fnrolest`) VALUES
     ('ADM', 'Controllers\\Products\\Create',       'ACT'),
     ('ADM', 'Controllers\\Products\\Edit',         'ACT'),
     ('ADM', 'Controllers\\Products\\Toggle',       'ACT'),
+    ('ADM', 'Menu_2FA',                            'ACT'),
+    ('ADM', 'Controllers\\Sec\\TwoFactorSetup',    'ACT'),
     ('CLI', 'Menu_Catalogo',                       'ACT'),
     ('CLI', 'Menu_PaymentCheckout',                'ACT');
+-- Nota: Menu_2FA y Controllers\Sec\TwoFactorSetup solo se asignan al rol ADM
+-- a propósito -- el 2FA (extra del Módulo D) es exclusivo del backoffice,
+-- el cliente regular no debe ver esa pantalla ni requiere doble factor.
 
 -- =============================================================
 -- USUARIO ADMINISTRADOR INICIAL
