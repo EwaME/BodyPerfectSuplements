@@ -1,7 +1,7 @@
 <section class="container-m py-4">
   <div class="mb-3">
-    <a href="index.php?page=History_History" class="text-decoration-none text-muted">
-      <i class="fas fa-arrow-left"></i>&nbsp;Volver al Histórico
+    <a href="{{returnUrl}}" class="text-decoration-none text-muted">
+      <i class="fas fa-arrow-left"></i>&nbsp;{{returnText}}
     </a>
   </div>
 
@@ -17,7 +17,7 @@
         <i class="fas fa-file-csv"></i>&nbsp;Exportar CSV
       </a>
       <button onclick="window.print()" class="btn btn-outline-dark btn-sm">
-        <i class="fas fa-print"></i>&nbsp;Imprimir
+        <i class="fas fa-print"></i>&nbsp;Imprimir / Guardar PDF
       </button>
     </div>
   </div>
