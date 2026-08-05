@@ -68,6 +68,7 @@ class Login extends \Controllers\PublicController
                 }
             }
         }
+        \Utilities\Site::addLink("public/css/security.css");
         $dataView = get_object_vars($this);
         \Views\Renderer::render("security/login", $dataView);
     }

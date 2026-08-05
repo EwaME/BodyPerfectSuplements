@@ -47,6 +47,7 @@ class Register extends PublicController
                 }
             }
         }
+        \Utilities\Site::addLink("public/css/security.css");
         $viewData = get_object_vars($this);
         \Views\Renderer::render("security/sigin", $viewData);
     }
