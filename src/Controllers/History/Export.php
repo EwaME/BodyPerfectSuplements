@@ -16,9 +16,16 @@ class Export extends PrivateController
             $pedidoId = isset($_GET["id"]) ? (int)$_GET["id"] : 0;
             $pedido = \Dao\History\History::getPedidoUsuario($pedidoId, $usercod);
             if (!$pedido) {
+             
+                $pedido = \Dao\History\History::getPedidoAdmin($pedidoId);
+                $detalle = \Dao\History\History::getDetallePedidoAdmin($pedidoId);
+            } else {
+                $detalle = \Dao\History\History::getDetallePedidoUsuario($pedidoId, $usercod);
+            }
+
+            if (!$pedido) {
                 \Utilities\Site::redirectToWithMsg("index.php?page=History_History", "Pedido no encontrado para exportar.");
             }
-            $detalle = \Dao\History\History::getDetallePedidoUsuario($pedidoId, $usercod);
 
             $filename = "pedido_" . $pedidoId . "_" . date("Ymd_His") . ".csv";
             header('Content-Type: text/csv; charset=utf-8');
@@ -40,8 +47,39 @@ class Export extends PrivateController
             }
             fclose($output);
             exit();
+        } elseif ($type === "admin") {
+           
+            $search = isset($_GET["q"]) ? trim($_GET["q"]) : "";
+            $estado = isset($_GET["estado"]) ? trim($_GET["estado"]) : "";
+            $fechaInicio = isset($_GET["fechaInicio"]) ? trim($_GET["fechaInicio"]) : "";
+            $fechaFin = isset($_GET["fechaFin"]) ? trim($_GET["fechaFin"]) : "";
+
+            $transacciones = \Dao\History\History::getAllTransaccionesAdmin($search, $estado, $fechaInicio, $fechaFin, 1, 10000);
+
+            $filename = "reporte_transacciones_admin_" . date("Ymd_His") . ".csv";
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename=' . $filename);
+
+            $output = fopen('php://output', 'w');
+            fputcsv($output, array('Pedido ID', 'Cliente', 'Correo', 'Fecha', 'Metodo Pago', 'Referencia Pasarela', 'Total (L)', 'Estado', 'Total Items'));
+
+            foreach ($transacciones as $t) {
+                fputcsv($output, array(
+                    $t["id"],
+                    $t["username"],
+                    $t["useremail"],
+                    $t["fecha"],
+                    $t["metodoPago"] ?? 'PAYPAL',
+                    $t["referenciaPasarela"] ?? 'N/A',
+                    $t["total"],
+                    $t["estado"],
+                    $t["totalItems"]
+                ));
+            }
+            fclose($output);
+            exit();
         } else {
-            // Exportar lista del historial
+       
             $estado = isset($_GET["estado"]) ? trim($_GET["estado"]) : "";
             $pedidos = \Dao\History\History::getTransaccionesPorUsuario($usercod, 1, 1000, $estado);
 

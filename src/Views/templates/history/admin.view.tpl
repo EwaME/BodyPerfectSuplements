@@ -1,9 +1,19 @@
 <section class="container-m py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
     <div>
       <h1 class="h2 font-weight-bold mb-1"><i class="fas fa-tasks text-primary"></i>&nbsp;Panel Admin: Transacciones del Sistema</h1>
       <p class="text-muted mb-0">Supervisión y auditoría consolidada de todas las ordenes y compras.</p>
     </div>
+    {{if hasTransacciones}}
+    <div class="d-flex gap-2 align-items-center mt-2 mt-md-0">
+      <a href="index.php?page=History_Export&type=admin&q={{search}}&estado={{estado}}&fechaInicio={{fechaInicio}}&fechaFin={{fechaFin}}" class="btn btn-outline-secondary btn-sm">
+        <i class="fas fa-file-csv"></i>&nbsp;Exportar CSV
+      </a>
+      <button onclick="window.print()" class="btn btn-outline-dark btn-sm">
+        <i class="fas fa-print"></i>&nbsp;Imprimir / Guardar PDF
+      </button>
+    </div>
+    {{endif hasTransacciones}}
   </div>
 
   <div class="card mb-4 shadow-sm border-0">
@@ -55,6 +65,7 @@
           <th>Items</th>
           <th>Monto Total</th>
           <th>Estado</th>
+          <th class="text-right">Acciones</th>
         </tr>
       </thead>
       <tbody>
@@ -74,6 +85,11 @@
           <td><strong class="text-primary">L. {{total}}</strong></td>
           <td>
             <span class="badge {{estadoBadge}} p-2">{{estadoText}}</span>
+          </td>
+          <td class="text-right">
+            <a href="index.php?page=History_Detail&id={{id}}&from=admin" class="btn btn-sm btn-info" title="Ver detalle">
+              <i class="fas fa-eye"></i>&nbsp;Detalle
+            </a>
           </td>
         </tr>
         {{endfor transacciones}}

@@ -1,7 +1,7 @@
 <section class="container-m py-4">
   <div class="mb-3">
-    <a href="index.php?page=History_History" class="text-decoration-none text-muted">
-      <i class="fas fa-arrow-left"></i>&nbsp;Volver al Histórico
+    <a href="{{returnUrl}}" class="text-decoration-none text-muted">
+      <i class="fas fa-arrow-left"></i>&nbsp;{{returnText}}
     </a>
   </div>
 

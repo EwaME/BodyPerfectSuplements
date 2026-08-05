@@ -18,12 +18,16 @@ class Detail extends PrivateController
         }
 
         $pedido = \Dao\History\History::getPedidoUsuario($pedidoId, $usercod);
+        if (!$pedido) {
+            $pedido = \Dao\History\History::getPedidoAdmin($pedidoId);
+            $detalle = \Dao\History\History::getDetallePedidoAdmin($pedidoId);
+        } else {
+            $detalle = \Dao\History\History::getDetallePedidoUsuario($pedidoId, $usercod);
+        }
 
         if (!$pedido) {
             \Utilities\Site::redirectToWithMsg("index.php?page=History_History", "No se encontró el pedido solicitado.");
         }
-
-        $detalle = \Dao\History\History::getDetallePedidoUsuario($pedidoId, $usercod);
 
         $pedido["isPND"] = ($pedido["estado"] === "PND");
         $pedido["isAPR"] = ($pedido["estado"] === "APR");
@@ -50,10 +54,23 @@ class Detail extends PrivateController
         }
         unset($item);
 
+        $fromAdmin = isset($_GET["from"]) && $_GET["from"] === "admin";
+        $isOwner = \Dao\History\History::getPedidoUsuario($pedidoId, $usercod);
+        
+        if ($fromAdmin || !$isOwner) {
+            $returnUrl = "index.php?page=History_Admin";
+            $returnText = "Volver al Panel Admin";
+        } else {
+            $returnUrl = "index.php?page=History_History";
+            $returnText = "Volver a Mis Compras";
+        }
+
         $viewData = array(
             "pedido" => $pedido,
             "detalle" => $detalle,
-            "subtotalGeneral" => number_format($subtotalGeneral, 2)
+            "subtotalGeneral" => number_format($subtotalGeneral, 2),
+            "returnUrl" => $returnUrl,
+            "returnText" => $returnText
         );
 
         Renderer::render("history/detail", $viewData);
