@@ -2,7 +2,7 @@
 -- Usa usuarios y productos ya existentes en la BD (no hardcodea IDs)
 -- INSERT IGNORE omite si ya existe la combinación productId+usercod
 
-USE bodyperfect;
+USE ecommerce;
 
 SET @u1 = (SELECT usercod FROM usuario ORDER BY usercod LIMIT 1);
 SET @u2 = (SELECT usercod FROM usuario ORDER BY usercod LIMIT 1 OFFSET 1);

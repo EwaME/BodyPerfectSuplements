@@ -1,238 +1,280 @@
 -- =============================================================
--- BodyPerfect Suplementos — Esquema de Base de Datos
--- Framework: Simple PHP MVC OOP
--- Proyecto Final Negocios Web
+-- BodyPerfect Suplementos — Script Maestro de Base de Datos
+-- Framework: Simple PHP MVC OOP — Proyecto Final Negocios Web
 --
--- NOTA IMPORTANTE — carrito anónimo:
---   El Dao Cart/Cart.php del template trae un typo: consulta
---   la tabla como `carretillaanom` (con M). Este script crea
---   la tabla con el nombre correcto `carretillaanon` (con N).
---   El Módulo C debe corregir el nombre en su Dao antes de
---   integrarse.
+-- USO: Correr este archivo completo, siempre, para lo que sea:
+--   - Instalación limpia (BD nueva)     -> crea todo desde cero.
+--   - Ya tenés la BD creada de antes    -> solo agrega lo que
+--     falte (tablas nuevas, filas nuevas). No borra ni duplica
+--     nada de lo que ya tenías.
+--
+--   mysql -u root ecommerce < sql/schema.sql
+--
+-- Es 100% idempotente: todo CREATE TABLE usa IF NOT EXISTS y
+-- todo INSERT usa IGNORE (se salta filas que ya existen por su
+-- Primary Key). Correrlo dos veces es seguro.
+--
+-- Refleja el estado real de la BD `ecommerce` compartida por el
+-- equipo al 2026-08-06 (mismas columnas que docs/scripts/*.sql,
+-- que es lo que efectivamente se corrió para crearla).
 -- =============================================================
+
+CREATE SCHEMA IF NOT EXISTS `ecommerce` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE `ecommerce`;
 
 SET FOREIGN_KEY_CHECKS = 0;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
 -- -------------------------------------------------------------
--- MÓDULO D — Seguridad
--- Nomenclatura exacta del framework del curso
+-- MÓDULO D — Seguridad (usuarios, roles, RBAC, bitácora)
+-- Nomenclatura exacta del framework del curso.
 -- -------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS `usuario` (
-    `usercod`     BIGINT(10)   NOT NULL AUTO_INCREMENT,
-    `useremail`   VARCHAR(80)  NOT NULL,
-    `username`    VARCHAR(80)  NOT NULL,
-    `userpswd`    VARCHAR(128) NOT NULL,
-    `userfching`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `userpswdest` CHAR(3)      NOT NULL DEFAULT 'ACT',
-    `userpswdexp` DATETIME     NOT NULL,
-    `userest`     CHAR(3)      NOT NULL DEFAULT 'ACT',
-    `useractcod`  VARCHAR(128) NOT NULL,
-    `userpswdchg` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `usertipo`    CHAR(3)      NOT NULL DEFAULT 'PBL',
+    `usercod`     bigint(10)   NOT NULL AUTO_INCREMENT,
+    `useremail`   varchar(80)  DEFAULT NULL,
+    `username`    varchar(80)  DEFAULT NULL,
+    `userpswd`    varchar(128) DEFAULT NULL,
+    `userfching`  datetime     DEFAULT NULL,
+    `userpswdest` char(3)      DEFAULT NULL,
+    `userpswdexp` datetime     DEFAULT NULL,
+    `userest`     char(3)      DEFAULT NULL,
+    `useractcod`  varchar(128) DEFAULT NULL,
+    `userpswdchg` varchar(128) DEFAULT NULL,
+    `usertipo`    char(3)      DEFAULT NULL COMMENT 'Tipo de Usuario, Normal, Consultor o Cliente',
     PRIMARY KEY (`usercod`),
-    UNIQUE KEY `uk_useremail` (`useremail`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- usertipo: PBL = público/cliente, ADM = administrador, AUD = auditor
--- userest / userpswdest: ACT, INA, BLQ, SUS
+    UNIQUE KEY `useremail_UNIQUE` (`useremail`),
+    KEY `usertipo` (`usertipo`, `useremail`, `usercod`, `userest`)
+) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8;
 
 CREATE TABLE IF NOT EXISTS `roles` (
-    `rolescod` VARCHAR(30)  NOT NULL,
-    `rolesdsc` VARCHAR(100) NOT NULL,
-    `rolesest` CHAR(3)      NOT NULL DEFAULT 'ACT',
+    `rolescod` varchar(128) NOT NULL,
+    `rolesdsc` varchar(45)  DEFAULT NULL,
+    `rolesest` char(3)      DEFAULT NULL,
     PRIMARY KEY (`rolescod`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
 CREATE TABLE IF NOT EXISTS `roles_usuarios` (
-    `usercod`     BIGINT(10)  NOT NULL,
-    `rolescod`    VARCHAR(30) NOT NULL,
-    `roleuserest` CHAR(3)     NOT NULL DEFAULT 'ACT',
-    `roleuserfch` DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `roleuserexp` DATETIME    NULL,
+    `usercod`     bigint(10)   NOT NULL,
+    `rolescod`    varchar(128) NOT NULL,
+    `roleuserest` char(3)      DEFAULT NULL,
+    `roleuserfch` datetime     DEFAULT NULL,
+    `roleuserexp` datetime     DEFAULT NULL,
     PRIMARY KEY (`usercod`, `rolescod`),
-    CONSTRAINT `fk_ru_usuario` FOREIGN KEY (`usercod`) REFERENCES `usuario` (`usercod`),
-    CONSTRAINT `fk_ru_roles`   FOREIGN KEY (`rolescod`) REFERENCES `roles` (`rolescod`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    KEY `rol_usuario_key_idx` (`rolescod`),
+    CONSTRAINT `rol_usuario_key` FOREIGN KEY (`rolescod`) REFERENCES `roles` (`rolescod`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+    CONSTRAINT `usuario_rol_key` FOREIGN KEY (`usercod`) REFERENCES `usuario` (`usercod`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
 CREATE TABLE IF NOT EXISTS `funciones` (
-    `fncod` VARCHAR(80)  NOT NULL,
-    `fndsc` VARCHAR(100) NOT NULL,
-    `fnest` CHAR(3)      NOT NULL DEFAULT 'ACT',
-    `fntyp` CHAR(3)      NOT NULL DEFAULT 'FNC',
+    `fncod` varchar(255) NOT NULL,
+    `fndsc` varchar(255) DEFAULT NULL,
+    `fnest` char(3)      DEFAULT NULL,
+    `fntyp` char(3)      DEFAULT NULL,
     PRIMARY KEY (`fncod`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- fntyp: CTR = controlador (pantalla), MNU = ítem de menú, FNC = función genérica
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
 CREATE TABLE IF NOT EXISTS `funciones_roles` (
-    `rolescod` VARCHAR(30) NOT NULL,
-    `fncod`    VARCHAR(80) NOT NULL,
-    `fnrolest` CHAR(3)     NOT NULL DEFAULT 'ACT',
-    `fnexp`    DATETIME    NULL,
+    `rolescod`  varchar(128) NOT NULL,
+    `fncod`     varchar(255) NOT NULL,
+    `fnrolest`  char(3)      DEFAULT NULL,
+    `fnexp`     datetime     DEFAULT NULL,
     PRIMARY KEY (`rolescod`, `fncod`),
-    CONSTRAINT `fk_fr_roles`    FOREIGN KEY (`rolescod`) REFERENCES `roles` (`rolescod`),
-    CONSTRAINT `fk_fr_funciones` FOREIGN KEY (`fncod`)   REFERENCES `funciones` (`fncod`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    KEY `rol_funcion_key_idx` (`fncod`),
+    CONSTRAINT `funcion_rol_key` FOREIGN KEY (`rolescod`) REFERENCES `roles` (`rolescod`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+    CONSTRAINT `rol_funcion_key` FOREIGN KEY (`fncod`) REFERENCES `funciones` (`fncod`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
 CREATE TABLE IF NOT EXISTS `bitacora` (
-    `bitacoracod`    BIGINT(10)   NOT NULL AUTO_INCREMENT,
-    `bitacorafch`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `bitprograma`    VARCHAR(80)  NOT NULL,
-    `bitdescripcion` VARCHAR(200) NOT NULL,
-    `bitobservacion` TEXT         NULL,
-    `bitTipo`        CHAR(3)      NOT NULL,
-    `bitusuario`     BIGINT(10)   NULL,
-    PRIMARY KEY (`bitacoracod`),
-    CONSTRAINT `fk_bit_usuario` FOREIGN KEY (`bitusuario`) REFERENCES `usuario` (`usercod`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `bitacoracod`    int(11)      NOT NULL AUTO_INCREMENT,
+    `bitacorafch`    datetime     DEFAULT NULL,
+    `bitprograma`    varchar(255) DEFAULT NULL,
+    `bitdescripcion` varchar(255) DEFAULT NULL,
+    `bitobservacion` mediumtext,
+    `bitTipo`        char(3)      DEFAULT NULL,
+    `bitusuario`     bigint(18)   DEFAULT NULL,
+    PRIMARY KEY (`bitacoracod`)
+) ENGINE = InnoDB AUTO_INCREMENT = 10 DEFAULT CHARSET = utf8;
 
--- bitTipo: LOG = login, OUT = logout, ERR = error, AUD = auditoría
+-- -------------------------------------------------------------
+-- MÓDULO D Extra — 2FA / TOTP para rol admin
+-- -------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS `two_factor_secrets` (
-    `id`       INT         NOT NULL AUTO_INCREMENT,
-    `usercod`  BIGINT(10)  NOT NULL,
-    `secret`   VARCHAR(32) NOT NULL,
-    `activado` TINYINT(1)  NOT NULL DEFAULT 0,
+    `id`       int(11)     NOT NULL AUTO_INCREMENT,
+    `usercod`  bigint(10)  NOT NULL,
+    `secret`   varchar(32) NOT NULL,
+    `activado` tinyint(1)  NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_2fa_usuario` (`usercod`),
-    CONSTRAINT `fk_2fa_usuario` FOREIGN KEY (`usercod`) REFERENCES `usuario` (`usercod`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    UNIQUE KEY `two_factor_user_unique` (`usercod`),
+    CONSTRAINT `two_factor_user_key` FOREIGN KEY (`usercod`)
+        REFERENCES `usuario` (`usercod`)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4;
 
 -- -------------------------------------------------------------
 -- MÓDULO B — Catálogo de Productos
--- Nomenclatura: camelCase inglés (patrón del curso para catálogo)
+-- categories antes que products (FK)
 -- -------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS `categories` (
-    `categoryId`          INT          NOT NULL AUTO_INCREMENT,
-    `categoryName`        VARCHAR(100) NOT NULL,
-    `categoryDescription` TEXT         NULL,
-    `parentCategoryId`    INT          NULL,
+    `categoryId`          int(11)      NOT NULL AUTO_INCREMENT,
+    `categoryName`        varchar(255) NOT NULL,
+    `categoryDescription` text         DEFAULT NULL,
+    `parentCategoryId`    int(11)      DEFAULT NULL,
     PRIMARY KEY (`categoryId`),
-    CONSTRAINT `fk_cat_parent` FOREIGN KEY (`parentCategoryId`) REFERENCES `categories` (`categoryId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    KEY `parentCategoryId_idx` (`parentCategoryId`),
+    CONSTRAINT `category_parent_key` FOREIGN KEY (`parentCategoryId`)
+        REFERENCES `categories` (`categoryId`)
+        ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `products` (
-    `productId`          INT            NOT NULL AUTO_INCREMENT,
-    `productName`        VARCHAR(150)   NOT NULL,
-    `productDescription` TEXT           NULL,
-    `productPrice`       DECIMAL(10, 2) NOT NULL,
-    `productImgUrl`      VARCHAR(255)   NULL,
-    `productStock`       INT            NOT NULL DEFAULT 0,
-    `productStatus`      CHAR(3)        NOT NULL DEFAULT 'ACT',
-    `categoryId`         INT            NULL,
+    `productId`          int(11)        NOT NULL AUTO_INCREMENT,
+    `productName`        varchar(255)   NOT NULL,
+    `productDescription` text           NOT NULL,
+    `productPrice`       decimal(10, 2) NOT NULL,
+    `productImgUrl`      varchar(255)   NOT NULL DEFAULT '',
+    `productStock`       int(11)        NOT NULL DEFAULT 0,
+    `productStatus`      char(3)        NOT NULL DEFAULT 'ACT',
+    `categoryId`         int(11)        DEFAULT NULL,
     PRIMARY KEY (`productId`),
-    CONSTRAINT `fk_prod_category` FOREIGN KEY (`categoryId`) REFERENCES `categories` (`categoryId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- productStatus: ACT = activo/disponible, INA = inactivo, AGO = agotado
--- Cuando productStock llega a 0 el controlador cambia status a 'AGO' automáticamente
+    KEY `categoryId_idx` (`categoryId`),
+    CONSTRAINT `product_category_key` FOREIGN KEY (`categoryId`)
+        REFERENCES `categories` (`categoryId`)
+        ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `sales` (
-    `id`        INT            NOT NULL AUTO_INCREMENT,
-    `productId` INT            NOT NULL,
-    `salePrice` DECIMAL(10, 2) NOT NULL,
-    `saleStart` DATETIME       NOT NULL,
-    `saleEnd`   DATETIME       NOT NULL,
-    PRIMARY KEY (`id`),
-    CONSTRAINT `fk_sale_product` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `saleId`    int(11)        NOT NULL AUTO_INCREMENT,
+    `productId` int(11)        NOT NULL,
+    `salePrice` decimal(10, 2) NOT NULL,
+    `saleStart` datetime       NOT NULL,
+    `saleEnd`   datetime       NOT NULL,
+    PRIMARY KEY (`saleId`),
+    KEY `sales_product_idx` (`productId`),
+    CONSTRAINT `sales_product_key` FOREIGN KEY (`productId`)
+        REFERENCES `products` (`productId`)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `highlights` (
-    `id`             INT      NOT NULL AUTO_INCREMENT,
-    `productId`      INT      NOT NULL,
-    `highlightStart` DATETIME NOT NULL,
-    `highlightEnd`   DATETIME NOT NULL,
-    PRIMARY KEY (`id`),
-    CONSTRAINT `fk_hl_product` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `highlightId`    int(11)  NOT NULL AUTO_INCREMENT,
+    `productId`      int(11)  NOT NULL,
+    `highlightStart` datetime NOT NULL,
+    `highlightEnd`   datetime NOT NULL,
+    PRIMARY KEY (`highlightId`),
+    KEY `highlights_product_idx` (`productId`),
+    CONSTRAINT `highlights_product_key` FOREIGN KEY (`productId`)
+        REFERENCES `products` (`productId`)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `reviews` (
-    `id`           INT        NOT NULL AUTO_INCREMENT,
-    `productId`    INT        NOT NULL,
-    `usercod`      BIGINT(10) NOT NULL,
-    `calificacion` TINYINT(1) NOT NULL COMMENT '1-5 estrellas',
-    `comentario`   TEXT       NULL,
-    `created_at`   DATETIME   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `id`           int(11)    NOT NULL AUTO_INCREMENT,
+    `productId`    int(11)    NOT NULL,
+    `usercod`      bigint(10) NOT NULL,
+    `calificacion` tinyint(1) NOT NULL COMMENT '1-5 estrellas',
+    `comentario`   text       DEFAULT NULL,
+    `created_at`   datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    CONSTRAINT `fk_rev_product` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`),
-    CONSTRAINT `fk_rev_usuario` FOREIGN KEY (`usercod`)   REFERENCES `usuario` (`usercod`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    UNIQUE KEY `review_user_product_unique` (`productId`, `usercod`),
+    KEY `reviews_user_idx` (`usercod`),
+    CONSTRAINT `reviews_product_key` FOREIGN KEY (`productId`)
+        REFERENCES `products` (`productId`)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `reviews_user_key` FOREIGN KEY (`usercod`)
+        REFERENCES `usuario` (`usercod`)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4;
 
 -- -------------------------------------------------------------
--- MÓDULO C — Carrito de Compras
--- Patrón TTL: sin campo de estado, la vigencia se calcula
--- por ventana de tiempo sobre crrfching.
--- AVISO: Cart/Cart.php del template usa "carretillaanom" (M).
--- Módulo C debe cambiar ese nombre a "carretillaanon" (N).
+-- MÓDULO C — Carrito de Compras (patrón TTL, sin campo de estado)
 -- -------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS `carretilla` (
-    `usercod`   BIGINT(10)     NOT NULL,
-    `productId` INT            NOT NULL,
-    `crrctd`    INT            NOT NULL DEFAULT 1,
-    `crrprc`    DECIMAL(10, 2) NOT NULL,
-    `crrfching` DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `usercod`   bigint(10)     NOT NULL,
+    `productId` int(11)        NOT NULL,
+    `crrctd`    int(5)         NOT NULL,
+    `crrprc`    decimal(12, 2) NOT NULL,
+    `crrfching` datetime       NOT NULL,
     PRIMARY KEY (`usercod`, `productId`),
-    CONSTRAINT `fk_crr_usuario`  FOREIGN KEY (`usercod`)   REFERENCES `usuario` (`usercod`),
-    CONSTRAINT `fk_crr_producto` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    KEY `carretilla_productId_idx` (`productId`),
+    CONSTRAINT `carretilla_user_key` FOREIGN KEY (`usercod`)
+        REFERENCES `usuario` (`usercod`)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `carretilla_prd_key` FOREIGN KEY (`productId`)
+        REFERENCES `products` (`productId`)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `carretillaanon` (
-    `anoncod`   VARCHAR(64)    NOT NULL,
-    `productId` INT            NOT NULL,
-    `crrctd`    INT            NOT NULL DEFAULT 1,
-    `crrprc`    DECIMAL(10, 2) NOT NULL,
-    `crrfching` DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `anoncod`   varchar(128)   NOT NULL,
+    `productId` int(11)        NOT NULL,
+    `crrctd`    int(5)         NOT NULL,
+    `crrprc`    decimal(12, 2) NOT NULL,
+    `crrfching` datetime       NOT NULL,
     PRIMARY KEY (`anoncod`, `productId`),
-    CONSTRAINT `fk_crra_producto` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    KEY `carretillaanon_productId_idx` (`productId`),
+    CONSTRAINT `carretillaanon_prd_key` FOREIGN KEY (`productId`)
+        REFERENCES `products` (`productId`)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
 -- -------------------------------------------------------------
--- MÓDULO E — Pedidos y Pasarela de Pagos
--- ESTAS TABLAS NO EXISTEN en el código de referencia del curso.
--- El Módulo E las crea y es dueño de la persistencia aquí.
--- estados pedidos: PND=pendiente, APR=aprobado, RCH=rechazado, CAN=cancelado
+-- MÓDULO E — Pasarela de pagos: pedidos, detalle, transacciones
 -- -------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS `pedidos` (
-    `id`       INT            NOT NULL AUTO_INCREMENT,
-    `usercod`  BIGINT(10)     NOT NULL,
-    `total`    DECIMAL(10, 2) NOT NULL,
-    `estado`   CHAR(3)        NOT NULL DEFAULT 'PND',
-    `fecha`    DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `id`      int(11)        NOT NULL AUTO_INCREMENT,
+    `usercod` bigint(10)     NOT NULL,
+    `total`   decimal(12, 2) NOT NULL,
+    `estado`  char(3)        NOT NULL DEFAULT 'PND' COMMENT 'PND=Pendiente, APR=Aprobado, RCH=Rechazado, CAN=Cancelado',
+    `fecha`   datetime       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    CONSTRAINT `fk_ped_usuario` FOREIGN KEY (`usercod`) REFERENCES `usuario` (`usercod`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    KEY `pedidos_user_idx` (`usercod`),
+    KEY `pedidos_estado_idx` (`estado`),
+    CONSTRAINT `pedidos_user_key` FOREIGN KEY (`usercod`)
+        REFERENCES `usuario` (`usercod`)
+        ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `pedido_detalle` (
-    `id`             INT            NOT NULL AUTO_INCREMENT,
-    `pedidoId`       INT            NOT NULL,
-    `productId`      INT            NOT NULL,
-    `cantidad`       INT            NOT NULL,
-    `precioUnitario` DECIMAL(10, 2) NOT NULL,
+    `id`             int(11)        NOT NULL AUTO_INCREMENT,
+    `pedidoId`       int(11)        NOT NULL,
+    `productId`      int(11)        NOT NULL,
+    `cantidad`       int(11)        NOT NULL,
+    `precioUnitario` decimal(12, 2) NOT NULL,
     PRIMARY KEY (`id`),
-    CONSTRAINT `fk_pd_pedido`   FOREIGN KEY (`pedidoId`)  REFERENCES `pedidos` (`id`),
-    CONSTRAINT `fk_pd_producto` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    KEY `pedido_detalle_pedido_idx` (`pedidoId`),
+    KEY `pedido_detalle_product_idx` (`productId`),
+    CONSTRAINT `pedido_detalle_pedido_key` FOREIGN KEY (`pedidoId`)
+        REFERENCES `pedidos` (`id`)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `pedido_detalle_product_key` FOREIGN KEY (`productId`)
+        REFERENCES `products` (`productId`)
+        ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `transacciones` (
-    `id`                  INT            NOT NULL AUTO_INCREMENT,
-    `pedidoId`            INT            NOT NULL,
-    `metodoPago`          VARCHAR(30)    NOT NULL DEFAULT 'PAYPAL',
-    `referenciaPasarela`  VARCHAR(100)   NULL,
-    `estado`              CHAR(3)        NOT NULL DEFAULT 'PND',
-    `monto`               DECIMAL(10, 2) NOT NULL,
-    `fecha`               DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `id`                 int(11)        NOT NULL AUTO_INCREMENT,
+    `pedidoId`           int(11)        NOT NULL,
+    `metodoPago`         varchar(20)    NOT NULL DEFAULT 'PAYPAL',
+    `referenciaPasarela` varchar(255)   DEFAULT NULL COMMENT 'Order ID de PayPal',
+    `estado`             char(3)        NOT NULL DEFAULT 'PND' COMMENT 'PND=Pendiente, APR=Aprobado, RCH=Rechazado, CAN=Cancelado',
+    `monto`              decimal(12, 2) NOT NULL,
+    `fecha`              datetime       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    CONSTRAINT `fk_trx_pedido` FOREIGN KEY (`pedidoId`) REFERENCES `pedidos` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    KEY `transacciones_pedido_idx` (`pedidoId`),
+    KEY `transacciones_ref_idx` (`referenciaPasarela`),
+    CONSTRAINT `transacciones_pedido_key` FOREIGN KEY (`pedidoId`)
+        REFERENCES `pedidos` (`id`)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4;
 
 -- =============================================================
--- DATOS SEMILLA
+-- DATOS SEMILLA — refleja el catálogo real del equipo (2026-08-06)
 -- =============================================================
 
 -- Roles base del sistema
@@ -240,88 +282,132 @@ INSERT IGNORE INTO `roles` (`rolescod`, `rolesdsc`, `rolesest`) VALUES
     ('ADM', 'Administrador', 'ACT'),
     ('CLI', 'Cliente',       'ACT');
 
--- Categorías de suplementos (datos de prueba)
+-- Categorías
 INSERT IGNORE INTO `categories` (`categoryId`, `categoryName`, `categoryDescription`, `parentCategoryId`) VALUES
-    (1, 'Proteínas',    'Suplementos proteicos para recuperación muscular', NULL),
-    (2, 'Pre-Entrenos', 'Energía y enfoque para el entrenamiento',          NULL),
-    (3, 'Vitaminas',    'Vitaminas y minerales esenciales',                 NULL),
-    (4, 'Whey',         'Proteína de suero de leche',                      1),
-    (5, 'Vegana',       'Proteína de origen vegetal',                      1),
-    (6, 'Caseína',      'Proteína de liberación lenta',                    1);
+    (1, 'Proteínas',          'Suplementos proteicos',            NULL),
+    (2, 'Whey Protein',       'Proteína de suero de leche',       1),
+    (3, 'Proteína Vegana',    'Proteína de origen vegetal',       1),
+    (4, 'Pre-entreno',        'Energía y rendimiento',            NULL),
+    (5, 'Creatina',           'Fuerza y potencia muscular',       NULL),
+    (6, 'Aminoácidos',        'BCAA, Glutamina y más',            NULL),
+    (7, 'Vitaminas y Salud',  'Multivitamínicos y bienestar',     NULL);
 
--- Productos de prueba
+-- Catálogo de productos
 INSERT IGNORE INTO `products` (`productId`, `productName`, `productDescription`, `productPrice`, `productImgUrl`, `productStock`, `productStatus`, `categoryId`) VALUES
-    (1, 'Whey Gold Standard 5lb',    'Proteína whey de alta calidad, 24g por porción.',   85.00, 'p6a6ffc42971824.10737467.png', 50, 'ACT', 4),
-    (2, 'Proteína Vegana Pea 2lb',   'Proteína de guisante 100% vegana, sin lactosa.',     62.00, 'p6a6ffc3e141f37.83416368.png', 30, 'ACT', 5),
-    (3, 'Pre-Entreno N.O. Xplode',   'Máxima energía y bombeo muscular.',                 45.00, 'p6a6ffc3812cfa8.18191402.jpg',  40, 'ACT', 2),
-    (4, 'Caseína Micelar 4lb',       'Proteína de liberación lenta ideal para la noche.', 75.00, 'p6a6ffbd9c1cad6.38587830.jpg',     20, 'ACT', 6),
-    (5, 'Vitamina C 1000mg x90',     'Refuerzo inmunológico, 90 cápsulas.',                12.00, 'p6a6ffbcf4f0012.60461186.jpg',     100, 'ACT', 3),
-    (6, 'Multivitamínico Sport x60', 'Complejo vitamínico para deportistas.',              18.00, NULL,      80, 'ACT', 3),
-    (7, 'Creatina Monohidratada 300g', 'Creatina pura, aumenta fuerza y rendimiento.',      28.00, NULL,      4, 'ACT', 1);
+    (11, 'Whey Protein Gold Standard 5lb',  'Proteína de suero sabor chocolate, 24g de proteína por servicio.',      1200.00, '',                             50, 'ACT', 2),
+    (12, 'Whey Protein Isolate 4lb',        'Isolate de alta pureza, bajo en lactosa. Sabor vainilla.',              1500.00, '',                             30, 'ACT', 2),
+    (13, 'Whey Protein 100% 3lb',           'Mezcla de concentrado e isolate. Sabor fresa.',                          850.00, '',                             40, 'ACT', 2),
+    (14, 'Proteína Vegana Chocolate 2lb',   'Base de guisante y arroz, libre de lactosa y gluten.',                   950.00, '',                             20, 'ACT', 3),
+    (15, 'Proteína Vegana Vainilla 2lb',    'Proteína vegetal completa con todos los aminoácidos esenciales.',       950.00, 'p6a7428bf27f912.77150080.png', 15, 'ACT', 3),
+    (16, 'C4 Original Pre-entreno 30 sv',   'Energía y enfoque para tu entrenamiento. Sabor sandía.',                 850.00, '',                             35, 'ACT', 4),
+    (17, 'NO-Xplode Pre-entreno 30 sv',     'Formula avanzada con cafeína, beta-alanina y creatina.',                 900.00, '',                             25, 'ACT', 4),
+    (18, 'Creatina Monohidratada 300g',     'Creatina pura micronizada, sin sabor. Aumenta fuerza y potencia.',       450.00, 'p6a742cd6ca37e1.69458195.jpg', 59, 'ACT', 5),
+    (19, 'Creatina Monohidratada 500g',     'Formato económico. Creatina de grado farmacéutico.',                     650.00, '',                             45, 'ACT', 5),
+    (20, 'BCAA 2:1:1 Powder 300g',          'Leucina, Isoleucina y Valina en proporción óptima. Sabor limón.',        700.00, '',                             40, 'ACT', 6),
+    (21, 'L-Glutamina 300g',                'Recuperación muscular y sistema inmune. Sin sabor.',                     550.00, 'p6a74127c7fd584.00532928.jpg', 30, 'ACT', 6),
+    (22, 'Multivitamínico Atleta 60 tabs',  'Fórmula completa con vitaminas A, C, D, E, zinc y magnesio.',            380.00, 'p6a741274275a04.96739663.jpg', 55, 'ACT', 7),
+    (23, 'Omega 3 Fish Oil 90 caps',        'EPA y DHA de alta concentración. Antiinflamatorio natural.',             420.00, 'p6a74126bdcc438.41700475.jpg', 40, 'ACT', 7),
+    (24, 'Quemador Lipo-6 Black 60 caps',   'Termogénico de acción rápida para definición muscular.',                 780.00, 'p6a7412642008f6.88826716.png', 20, 'ACT', 4),
+    (25, 'Caseína Micelar Chocolate 4lb',   'Proteína de digestión lenta, ideal para tomar en la noche.',            1300.00, 'p6a74125a1e1df4.53911948.png', 18, 'ACT', 2);
 
--- Destacados activos (fechas fijas para evitar problemas de timezone en import)
-INSERT IGNORE INTO `highlights` (`productId`, `highlightStart`, `highlightEnd`) VALUES
-    (1, '2026-08-01 00:00:00', '2026-09-30 23:59:59'),
-    (3, '2026-08-01 00:00:00', '2026-09-30 23:59:59');
+-- Destacados (inicio/fin relativos a NOW(): si la fila ya existe se ignora
+-- tal cual estaba; si no existe, arranca fresca 30 días desde que se corre).
+INSERT IGNORE INTO `highlights` (`highlightId`, `productId`, `highlightStart`, `highlightEnd`) VALUES
+    (3,  11, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)),
+    (4,  12, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)),
+    (5,  13, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)),
+    (6,  14, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)),
+    (10, 19, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)),
+    (11, 23, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY));
 
--- Oferta del día
-INSERT IGNORE INTO `sales` (`productId`, `salePrice`, `saleStart`, `saleEnd`) VALUES
-    (2, 49.99, '2026-08-01 00:00:00', '2026-09-30 23:59:59'),
-    (5,  9.99, '2026-08-01 00:00:00', '2026-09-30 23:59:59');
+-- Ofertas del día (mismo criterio de fechas relativas que highlights)
+INSERT IGNORE INTO `sales` (`saleId`, `productId`, `salePrice`, `saleStart`, `saleEnd`) VALUES
+    (4,  15, 760.00, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY)),
+    (5,  16, 680.00, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY)),
+    (6,  17, 720.00, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY)),
+    (7,  18, 360.00, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY)),
+    (8,  19, 520.00, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY)),
+    (9,  20, 560.00, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY)),
+    (10, 21, 440.00, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY)),
+    (11, 22, 304.00, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY));
 
--- Funciones de menú y controladores (acceso RBAC por rol)
+-- Funciones de menú y controladores (acceso RBAC por rol) — los 6 módulos
 INSERT IGNORE INTO `funciones` (`fncod`, `fndsc`, `fnest`, `fntyp`) VALUES
-    ('Menu_Catalogo',                        'Catálogo de Productos',  'ACT', 'MNU'),
-    ('Menu_PaymentCheckout',                 'Carrito de Compras',     'ACT', 'MNU'),
-    ('Menu_AdminProductos',                  'Admin Productos Menu',   'ACT', 'MNU'),
-    ('Controllers\\Products\\Admin',         'Admin Lista Productos',  'ACT', 'CTR'),
-    ('Controllers\\Products\\Create',        'Admin Crear Producto',   'ACT', 'CTR'),
-    ('Controllers\\Products\\Edit',          'Admin Editar Producto',  'ACT', 'CTR'),
-    ('Controllers\\Products\\Toggle',        'Admin Toggle Status',    'ACT', 'CTR'),
-    ('Menu_2FA',                             'Menu Configurar 2FA',    'ACT', 'MNU'),
-    ('Controllers\\Sec\\TwoFactorSetup',     'Configurar Doble Factor','ACT', 'CTR');
+    ('Menu_2FA',                             'Menu_2FA',                 'ACT', 'MNU'),
+    ('Menu_AdminProductos',                  'Menu_AdminProductos',      'ACT', 'MNU'),
+    ('Menu_Cart',                            'Menu_Cart',                'ACT', 'MNU'),
+    ('Menu_Catalogo',                        'Menu_Catalogo',            'ACT', 'MNU'),
+    ('Menu_Dashboard',                       'Dashboard Admin',          'ACT', 'MNU'),
+    ('Menu_Historial',                       'Menu_Historial',           'ACT', 'MNU'),
+    ('Controllers\\Checkout\\Accept',        'Pago aceptado',            'ACT', 'CTR'),
+    ('Controllers\\Checkout\\Cart',          'Carrito',                  'ACT', 'CTR'),
+    ('Controllers\\Checkout\\Checkout',      'Checkout',                 'ACT', 'CTR'),
+    ('Controllers\\Checkout\\Error',         'Pago error',               'ACT', 'CTR'),
+    ('Controllers\\Dashboard\\Dashboard',    'Dashboard',                'ACT', 'CTR'),
+    ('Controllers\\History\\Admin',          'Admin transacciones',      'ACT', 'CTR'),
+    ('Controllers\\History\\Detail',         'Detalle orden',            'ACT', 'CTR'),
+    ('Controllers\\History\\Export',         'Exportar historial',       'ACT', 'CTR'),
+    ('Controllers\\History\\History',        'Mi historial',             'ACT', 'CTR'),
+    ('Controllers\\Products\\Admin',         'Admin lista productos',    'ACT', 'CTR'),
+    ('Controllers\\Products\\Autocomplete',  'Autocomplete',             'ACT', 'CTR'),
+    ('Controllers\\Products\\Create',        'Crear producto',           'ACT', 'CTR'),
+    ('Controllers\\Products\\Edit',          'Editar producto',          'ACT', 'CTR'),
+    ('Controllers\\Products\\Toggle',        'Activar/desactivar',       'ACT', 'CTR'),
+    ('Controllers\\Reviews\\Review',         'Publicar reseña',          'ACT', 'CTR'),
+    ('Controllers\\Sec\\TwoFactorSetup',     'Setup 2FA',                'ACT', 'CTR'),
+    ('Controllers\\Sec\\TwoFactorVerify',    'Verificar 2FA',            'ACT', 'CTR');
 
+-- Permisos: Administrador (todo)
 INSERT IGNORE INTO `funciones_roles` (`rolescod`, `fncod`, `fnrolest`) VALUES
-    ('ADM', 'Menu_Catalogo',                       'ACT'),
-    ('ADM', 'Menu_PaymentCheckout',                'ACT'),
+    ('ADM', 'Menu_2FA',                            'ACT'),
     ('ADM', 'Menu_AdminProductos',                 'ACT'),
+    ('ADM', 'Menu_Cart',                           'ACT'),
+    ('ADM', 'Menu_Catalogo',                       'ACT'),
+    ('ADM', 'Menu_Dashboard',                      'ACT'),
+    ('ADM', 'Menu_Historial',                      'ACT'),
+    ('ADM', 'Controllers\\Checkout\\Accept',       'ACT'),
+    ('ADM', 'Controllers\\Checkout\\Cart',         'ACT'),
+    ('ADM', 'Controllers\\Checkout\\Checkout',     'ACT'),
+    ('ADM', 'Controllers\\Checkout\\Error',        'ACT'),
+    ('ADM', 'Controllers\\Dashboard\\Dashboard',   'ACT'),
+    ('ADM', 'Controllers\\History\\Admin',         'ACT'),
+    ('ADM', 'Controllers\\History\\Detail',        'ACT'),
+    ('ADM', 'Controllers\\History\\Export',        'ACT'),
+    ('ADM', 'Controllers\\History\\History',       'ACT'),
     ('ADM', 'Controllers\\Products\\Admin',        'ACT'),
+    ('ADM', 'Controllers\\Products\\Autocomplete', 'ACT'),
     ('ADM', 'Controllers\\Products\\Create',       'ACT'),
     ('ADM', 'Controllers\\Products\\Edit',         'ACT'),
     ('ADM', 'Controllers\\Products\\Toggle',       'ACT'),
-    ('ADM', 'Menu_2FA',                            'ACT'),
+    ('ADM', 'Controllers\\Reviews\\Review',        'ACT'),
     ('ADM', 'Controllers\\Sec\\TwoFactorSetup',    'ACT'),
+    ('ADM', 'Controllers\\Sec\\TwoFactorVerify',   'ACT');
+
+-- Permisos: Cliente (tienda + su propio historial + 2FA opcional)
+INSERT IGNORE INTO `funciones_roles` (`rolescod`, `fncod`, `fnrolest`) VALUES
+    ('CLI', 'Menu_2FA',                            'ACT'),
+    ('CLI', 'Menu_Cart',                           'ACT'),
     ('CLI', 'Menu_Catalogo',                       'ACT'),
-    ('CLI', 'Menu_PaymentCheckout',                'ACT');
--- Nota: Menu_2FA y Controllers\Sec\TwoFactorSetup solo se asignan al rol ADM
--- a propósito -- el 2FA (extra del Módulo D) es exclusivo del backoffice,
--- el cliente regular no debe ver esa pantalla ni requiere doble factor.
-
--- =============================================================
--- USUARIO ADMINISTRADOR INICIAL
---
--- Ejecuta este script PHP UNA SOLA VEZ para obtener el hash:
---
---   php -r "
---     \$pwd = 'Admin1234!';
---     \$salt = hash_hmac('sha256', \$pwd, 'TU_PWD_HASH_DE_ENV');
---     echo password_hash(\$salt, PASSWORD_BCRYPT);
---   "
---
--- Luego reemplaza el hash en el INSERT y ejecuta:
--- =============================================================
-
--- INSERT INTO `usuario`
---     (`useremail`, `username`, `userpswd`, `userfching`,
---      `userpswdest`, `userpswdexp`, `userest`, `useractcod`, `userpswdchg`, `usertipo`)
--- VALUES
---     ('admin@bodyperfect.com', 'Administrador',
---      'PEGA_EL_HASH_AQUI',
---      NOW(), 'ACT', DATE_ADD(NOW(), INTERVAL 90 DAY),
---      'ACT', 'setup_inicial', NOW(), 'ADM');
-
--- -- Asignar rol ADM al admin (usercod=1 asumiendo que es el primer usuario)
--- INSERT INTO `roles_usuarios` (`usercod`, `rolescod`, `roleuserest`, `roleuserfch`)
--- VALUES (1, 'ADM', 'ACT', NOW());
+    ('CLI', 'Menu_Historial',                      'ACT'),
+    ('CLI', 'Controllers\\Checkout\\Accept',       'ACT'),
+    ('CLI', 'Controllers\\Checkout\\Cart',         'ACT'),
+    ('CLI', 'Controllers\\Checkout\\Checkout',     'ACT'),
+    ('CLI', 'Controllers\\Checkout\\Error',        'ACT'),
+    ('CLI', 'Controllers\\History\\Detail',        'ACT'),
+    ('CLI', 'Controllers\\History\\Export',        'ACT'),
+    ('CLI', 'Controllers\\History\\History',       'ACT'),
+    ('CLI', 'Controllers\\Reviews\\Review',        'ACT'),
+    ('CLI', 'Controllers\\Sec\\TwoFactorSetup',    'ACT'),
+    ('CLI', 'Controllers\\Sec\\TwoFactorVerify',   'ACT');
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- =============================================================
+-- USUARIO ADMINISTRADOR INICIAL (paso manual — no lleva contraseñas
+-- reales en este script para no exponer hashes en el repo)
+--
+-- 1. Generar el hash:
+--      php sql/seed_admin.php
+-- 2. Copiar el INSERT que imprime y correrlo en la base de datos.
+--    Login de prueba documentado en README: admin@bodyperfect.com
+-- =============================================================
