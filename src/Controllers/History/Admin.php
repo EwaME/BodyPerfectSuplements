@@ -22,16 +22,16 @@ class Admin extends PrivateController
 
         foreach ($transacciones as &$t) {
             if ($t["estado"] === "APR") {
-                $t["estadoBadge"] = "badge-success";
+                $t["estadoBadge"] = "bp-badge-act";
                 $t["estadoText"] = "Aprobado";
             } elseif ($t["estado"] === "PND") {
-                $t["estadoBadge"] = "badge-warning";
+                $t["estadoBadge"] = "bp-badge-pnd";
                 $t["estadoText"] = "Pendiente";
             } elseif ($t["estado"] === "RCH") {
-                $t["estadoBadge"] = "badge-danger";
+                $t["estadoBadge"] = "bp-badge-ina";
                 $t["estadoText"] = "Rechazado";
             } else {
-                $t["estadoBadge"] = "badge-secondary";
+                $t["estadoBadge"] = "bp-badge-ago";
                 $t["estadoText"] = "Cancelado";
             }
         }

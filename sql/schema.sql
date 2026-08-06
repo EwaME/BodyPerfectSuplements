@@ -1,35 +1,9 @@
--- =============================================================
--- BodyPerfect Suplementos — Script Maestro de Base de Datos
--- Framework: Simple PHP MVC OOP — Proyecto Final Negocios Web
---
--- USO: Correr este archivo completo, siempre, para lo que sea:
---   - Instalación limpia (BD nueva)     -> crea todo desde cero.
---   - Ya tenés la BD creada de antes    -> solo agrega lo que
---     falte (tablas nuevas, filas nuevas). No borra ni duplica
---     nada de lo que ya tenías.
---
---   mysql -u root ecommerce < sql/schema.sql
---
--- Es 100% idempotente: todo CREATE TABLE usa IF NOT EXISTS y
--- todo INSERT usa IGNORE (se salta filas que ya existen por su
--- Primary Key). Correrlo dos veces es seguro.
---
--- Refleja el estado real de la BD `ecommerce` compartida por el
--- equipo al 2026-08-06 (mismas columnas que docs/scripts/*.sql,
--- que es lo que efectivamente se corrió para crearla).
--- =============================================================
-
 CREATE SCHEMA IF NOT EXISTS `ecommerce` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 USE `ecommerce`;
 
 SET FOREIGN_KEY_CHECKS = 0;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
-
--- -------------------------------------------------------------
--- MÓDULO D — Seguridad (usuarios, roles, RBAC, bitácora)
--- Nomenclatura exacta del framework del curso.
--- -------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS `usuario` (
     `usercod`     bigint(10)   NOT NULL AUTO_INCREMENT,
@@ -97,10 +71,6 @@ CREATE TABLE IF NOT EXISTS `bitacora` (
     PRIMARY KEY (`bitacoracod`)
 ) ENGINE = InnoDB AUTO_INCREMENT = 10 DEFAULT CHARSET = utf8;
 
--- -------------------------------------------------------------
--- MÓDULO D Extra — 2FA / TOTP para rol admin
--- -------------------------------------------------------------
-
 CREATE TABLE IF NOT EXISTS `two_factor_secrets` (
     `id`       int(11)     NOT NULL AUTO_INCREMENT,
     `usercod`  bigint(10)  NOT NULL,
@@ -112,11 +82,6 @@ CREATE TABLE IF NOT EXISTS `two_factor_secrets` (
         REFERENCES `usuario` (`usercod`)
         ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4;
-
--- -------------------------------------------------------------
--- MÓDULO B — Catálogo de Productos
--- categories antes que products (FK)
--- -------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS `categories` (
     `categoryId`          int(11)      NOT NULL AUTO_INCREMENT,
@@ -146,10 +111,6 @@ CREATE TABLE IF NOT EXISTS `products` (
         ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4;
 
--- Repara instalaciones viejas: si alguien ya tenía `products` de antes de
--- que existieran estas columnas, `CREATE TABLE IF NOT EXISTS` de arriba no
--- las agrega solo (la tabla ya existe, no la vuelve a crear). Sin esto, los
--- INSERT de más abajo fallan con "Unknown column" en BDs desactualizadas.
 ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `productStock` int(11) NOT NULL DEFAULT 0 AFTER `productImgUrl`;
 ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `productStatus` char(3) NOT NULL DEFAULT 'ACT' AFTER `productStock`;
 ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `categoryId` int(11) DEFAULT NULL AFTER `productStatus`;
@@ -197,10 +158,6 @@ CREATE TABLE IF NOT EXISTS `reviews` (
         ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4;
 
--- -------------------------------------------------------------
--- MÓDULO C — Carrito de Compras (patrón TTL, sin campo de estado)
--- -------------------------------------------------------------
-
 CREATE TABLE IF NOT EXISTS `carretilla` (
     `usercod`   bigint(10)     NOT NULL,
     `productId` int(11)        NOT NULL,
@@ -229,10 +186,6 @@ CREATE TABLE IF NOT EXISTS `carretillaanon` (
         REFERENCES `products` (`productId`)
         ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
-
--- -------------------------------------------------------------
--- MÓDULO E — Pasarela de pagos: pedidos, detalle, transacciones
--- -------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS `pedidos` (
     `id`      int(11)        NOT NULL AUTO_INCREMENT,
@@ -281,16 +234,12 @@ CREATE TABLE IF NOT EXISTS `transacciones` (
         ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4;
 
--- =============================================================
--- DATOS SEMILLA — refleja el catálogo real del equipo (2026-08-06)
--- =============================================================
-
--- Roles base del sistema
+-- roles del sistema
 INSERT IGNORE INTO `roles` (`rolescod`, `rolesdsc`, `rolesest`) VALUES
     ('ADM', 'Administrador', 'ACT'),
     ('CLI', 'Cliente',       'ACT');
 
--- Categorías
+-- categorías
 INSERT IGNORE INTO `categories` (`categoryId`, `categoryName`, `categoryDescription`, `parentCategoryId`) VALUES
     (1, 'Proteínas',          'Suplementos proteicos',            NULL),
     (2, 'Whey Protein',       'Proteína de suero de leche',       1),
@@ -318,9 +267,6 @@ INSERT IGNORE INTO `products` (`productId`, `productName`, `productDescription`,
     (24, 'Quemador Lipo-6 Black 60 caps',   'Termogénico de acción rápida para definición muscular.',                 780.00, 'p6a74b5b1e52769.07674842.jpg', 20, 'ACT', 4),
     (25, 'Caseína Micelar Chocolate 4lb',   'Proteína de digestión lenta, ideal para tomar en la noche.',            1300.00, 'p6a74b4fa9a9892.88572906.jpg', 18, 'ACT', 2);
 
--- Corrige filas de `products` que ya existían con datos viejos (INSERT IGNORE
--- de arriba no las pisa). Seguro correrlo varias veces: siempre deja el
--- mismo valor final, sea cual sea el estado previo de la fila.
 UPDATE `products` SET
     `productName` = 'Creatina Monohidratada 1000g',
     `productDescription` = 'Formato más grande. Creatina de grado farmacéutico.',
@@ -343,8 +289,7 @@ UPDATE `products` SET `productImgUrl` = 'p6a74b58f312327.95196840.jpg' WHERE `pr
 UPDATE `products` SET `productImgUrl` = 'p6a74b5b1e52769.07674842.jpg' WHERE `productId` = 24 AND `productImgUrl` <> 'p6a74b5b1e52769.07674842.jpg';
 UPDATE `products` SET `productImgUrl` = 'p6a74b4fa9a9892.88572906.jpg' WHERE `productId` = 25 AND `productImgUrl` <> 'p6a74b4fa9a9892.88572906.jpg';
 
--- Destacados (inicio/fin relativos a NOW(): si la fila ya existe se ignora
--- tal cual estaba; si no existe, arranca fresca 30 días desde que se corre).
+-- destacados
 INSERT IGNORE INTO `highlights` (`highlightId`, `productId`, `highlightStart`, `highlightEnd`) VALUES
     (3,  11, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)),
     (4,  12, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)),
@@ -353,7 +298,7 @@ INSERT IGNORE INTO `highlights` (`highlightId`, `productId`, `highlightStart`, `
     (10, 19, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)),
     (11, 23, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY));
 
--- Ofertas del día (mismo criterio de fechas relativas que highlights)
+-- ofertas
 INSERT IGNORE INTO `sales` (`saleId`, `productId`, `salePrice`, `saleStart`, `saleEnd`) VALUES
     (4,  15, 760.00, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY)),
     (5,  16, 680.00, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY)),
@@ -364,7 +309,6 @@ INSERT IGNORE INTO `sales` (`saleId`, `productId`, `salePrice`, `saleStart`, `sa
     (10, 21, 440.00, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY)),
     (11, 22, 304.00, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY));
 
--- Funciones de menú y controladores (acceso RBAC por rol) — los 6 módulos
 INSERT IGNORE INTO `funciones` (`fncod`, `fndsc`, `fnest`, `fntyp`) VALUES
     ('Menu_2FA',                             'Menu_2FA',                 'ACT', 'MNU'),
     ('Menu_AdminProductos',                  'Menu_AdminProductos',      'ACT', 'MNU'),
