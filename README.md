@@ -9,11 +9,11 @@ Proyecto final de Negocios Web. Tienda de suplementos deportivos bajo el modelo 
 | # | Integrante | Módulo(s) |
 |---|---|---|
 | 1 | Edward | A — Arquitectura MVC + B — Catálogo de Productos |
-| 2 | Compañero/a 2 | C — Carrito de Compras |
-| 3 | Compañero/a 3 | D — Esquema de Seguridad |
-| 4 | Compañero/a 4 | E — Pasarela de Pagos |
-| 5 | Compañero/a 5 | F — Histórico de Transacciones |
-| 6 | Compañero/a 6 | G — QA, Integración, Documentación y Video |
+| 2 | Aroca | C — Carrito de Compras |
+| 3 | Kenneth | D — Esquema de Seguridad |
+| 4 | Josue | E — Pasarela de Pagos |
+| 5 | Stephanie | F — Histórico de Transacciones |
+| 6 | Roberto | G — QA, Integración, Documentación y Video |
 
 ---
 
