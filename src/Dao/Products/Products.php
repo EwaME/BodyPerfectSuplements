@@ -15,7 +15,8 @@ class Products extends \Dao\Table
                 LEFT JOIN sales s ON p.productId = s.productId
                     AND NOW() BETWEEN s.saleStart AND s.saleEnd
                 WHERE p.productStatus = 'ACT'
-                ORDER BY h.highlightId DESC;";
+                ORDER BY h.highlightId DESC
+                LIMIT 6;";
         return self::obtenerRegistros($sql, []);
     }
 

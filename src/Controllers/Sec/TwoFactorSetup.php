@@ -68,7 +68,7 @@ class TwoFactorSetup extends \Controllers\PrivateController
             );
         }
 
-        \Utilities\Site::addLink("public/css/security.css");
+        \Utilities\Site::addLink("public/css/security.css?v=" . (file_exists("public/css/security.css") ? filemtime("public/css/security.css") : time()));
         \Views\Renderer::render("security/twofactor_setup", array(
             "activado" => $activado ? 1 : 0,
             "secret" => $secretParaMostrar,

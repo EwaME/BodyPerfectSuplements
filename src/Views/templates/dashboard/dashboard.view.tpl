@@ -125,23 +125,29 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 (function() {
-  var labelsVentas  = {{{jsonLabelsVentas}}};
-  var dataIngresos  = {{{jsonDataIngresos}}};
-  var labelsTop     = {{{jsonLabelsTop}}};
-  var dataTop       = {{{jsonDataTop}}};
+  var labelsVentas  = {{jsonLabelsVentas}};
+  var dataIngresos  = {{jsonDataIngresos}};
+  var labelsTop     = {{jsonLabelsTop}};
+  var dataTop       = {{jsonDataTop}};
 
   if (document.getElementById('chartVentas')) {
     new Chart(document.getElementById('chartVentas'), {
-      type: 'bar',
+      type: 'line',
       data: {
         labels: labelsVentas,
         datasets: [{
           label: 'Ingresos (L.)',
           data: dataIngresos,
-          backgroundColor: 'rgba(16,185,129,.7)',
           borderColor: 'rgb(16,185,129)',
-          borderWidth: 1,
-          borderRadius: 6
+          backgroundColor: 'rgba(16,185,129,.15)',
+          pointBackgroundColor: 'rgb(16,185,129)',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          borderWidth: 2,
+          tension: 0.35,
+          fill: true
         }]
       },
       options: {
@@ -154,23 +160,23 @@
 
   if (document.getElementById('chartTop')) {
     new Chart(document.getElementById('chartTop'), {
-      type: 'bar',
+      type: 'doughnut',
       data: {
         labels: labelsTop,
         datasets: [{
           label: 'Unidades vendidas',
           data: dataTop,
-          backgroundColor: 'rgba(59,130,246,.7)',
-          borderColor: 'rgb(59,130,246)',
-          borderWidth: 1,
-          borderRadius: 6
+          backgroundColor: ['#00c49a', '#3b82f6', '#8b5cf6', '#f59e0b', '#e63946'],
+          borderColor: '#fff',
+          borderWidth: 2
         }]
       },
       options: {
-        indexAxis: 'y',
         responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { x: { beginAtZero: true } }
+        cutout: '62%',
+        plugins: {
+          legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } }
+        }
       }
     });
   }
