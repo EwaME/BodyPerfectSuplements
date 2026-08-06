@@ -125,7 +125,6 @@ BodyPerfect/
 │   │   └── Security/      TOTP para 2FA
 │   └── Views/
 │       └── templates/     Plantillas .view.tpl por módulo
-├── reglas-contexto/       Documentación interna del proyecto
 ├── nav.config.json        Configuración del menú de navegación
 ├── parameters.env         Variables de entorno (no commitear)
 ├── composer.json
