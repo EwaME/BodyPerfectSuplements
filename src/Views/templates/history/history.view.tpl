@@ -1,38 +1,41 @@
-<section class="container-m py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h1 class="h2 font-weight-bold mb-1"><i class="fas fa-history text-primary"></i>&nbsp;Histórico de Transacciones</h1>
-      <p class="text-muted mb-0">Revisa tus compras realizadas y el estado de cada pedido.</p>
-    </div>
+<div class="container-m py-5">
+
+  <div class="row align-center" style="margin-bottom:1.5rem;">
+    <h2 style="margin:0;flex:1;"><i class="fas fa-history"></i>&nbsp;Histórico de Transacciones</h2>
     {{if hasPedidos}}
-    <div>
-      <a href="index.php?page=History_Export&type=history&estado={{estado}}" class="btn btn-outline-secondary">
-        <i class="fas fa-file-csv"></i>&nbsp;Exportar CSV
-      </a>
-    </div>
+    <a href="index.php?page=History_Export&type=history&estado={{estado}}" class="bp-btn-cta" style="font-size:0.9rem;padding:0.6rem 1.2rem;">
+      <i class="fas fa-file-csv"></i>&nbsp;Exportar CSV
+    </a>
     {{endif hasPedidos}}
   </div>
 
-  <div class="card mb-4 shadow-sm border-0">
-    <div class="card-body p-3">
-      <form action="index.php" method="get" class="form-inline d-flex flex-wrap gap-2">
-        <input type="hidden" name="page" value="History_History" />
-        <label class="mr-2 font-weight-bold">Filtrar por estado:</label>
-        <select name="estado" class="form-control mr-2 mb-2 mb-md-0" onchange="this.form.submit()">
-          <option value="ALL" {{if isFilterAll}}selected{{endif isFilterAll}}>Todos los estados</option>
-          <option value="APR" {{if isFilterAPR}}selected{{endif isFilterAPR}}>Aprobados</option>
-          <option value="PND" {{if isFilterPND}}selected{{endif isFilterPND}}>Pendientes</option>
-          <option value="RCH" {{if isFilterRCH}}selected{{endif isFilterRCH}}>Rechazados</option>
-        </select>
-        <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-filter"></i>&nbsp;Filtrar</button>
-      </form>
+  <p style="color:#666;margin-top:-1rem;margin-bottom:1.25rem;">Revisa tus compras realizadas y el estado de cada pedido.</p>
+
+  <!-- Filtro por estado -->
+  <form method="GET" action="index.php" class="bp-admin-filter-bar">
+    <input type="hidden" name="page" value="History_History" />
+    <div class="bp-admin-status-tabs">
+      <button type="submit" name="estado" value="ALL" class="bp-status-tab {{if isFilterAll}}active{{endif isFilterAll}}">Todos</button>
+      <button type="submit" name="estado" value="APR" class="bp-status-tab act {{if isFilterAPR}}active{{endif isFilterAPR}}">
+        <i class="fas fa-circle" style="font-size:0.55rem;"></i>&nbsp;Aprobados
+      </button>
+      <button type="submit" name="estado" value="PND" class="bp-status-tab pnd {{if isFilterPND}}active{{endif isFilterPND}}">
+        <i class="fas fa-circle" style="font-size:0.55rem;"></i>&nbsp;Pendientes
+      </button>
+      <button type="submit" name="estado" value="RCH" class="bp-status-tab ina {{if isFilterRCH}}active{{endif isFilterRCH}}">
+        <i class="fas fa-circle" style="font-size:0.55rem;"></i>&nbsp;Rechazados
+      </button>
     </div>
-  </div>
+  </form>
 
   {{if hasPedidos}}
-  <div class="table-responsive bg-white rounded shadow-sm border mb-4">
-    <table class="table table-hover align-middle mb-0">
-      <thead class="thead-light">
+  <div class="bp-admin-result-info">
+    <span>{{total}} pedido(s) encontrado(s)</span>
+  </div>
+
+  <div class="WWList">
+    <table>
+      <thead>
         <tr>
           <th># Orden</th>
           <th>Fecha</th>
@@ -40,7 +43,7 @@
           <th>Total de Ítems</th>
           <th>Monto Total</th>
           <th>Estado</th>
-          <th class="text-right">Acciones</th>
+          <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
@@ -48,17 +51,18 @@
         <tr>
           <td><strong>#{{id}}</strong></td>
           <td>{{fecha}}</td>
-          <td>
-            <span class="badge badge-light text-dark"><i class="fab fa-paypal text-info"></i>&nbsp;{{metodoPago}}</span>
-          </td>
+          <td><i class="fab fa-paypal"></i>&nbsp;{{metodoPago}}</td>
           <td>{{totalItems}} producto(s)</td>
-          <td><strong class="text-primary">L. {{total}}</strong></td>
+          <td><strong>L. {{total}}</strong></td>
           <td>
-            <span class="badge {{estadoBadge}} p-2">{{estadoText}}</span>
+            {{if isAPR}}<span class="bp-status-badge bp-badge-act">Aprobado</span>{{endif isAPR}}
+            {{if isPND}}<span class="bp-status-badge bp-badge-pnd">Pendiente</span>{{endif isPND}}
+            {{if isRCH}}<span class="bp-status-badge bp-badge-ina">Rechazado</span>{{endif isRCH}}
+            {{if isCAN}}<span class="bp-status-badge bp-badge-ago">Cancelado</span>{{endif isCAN}}
           </td>
-          <td class="text-right">
-            <a href="index.php?page=History_Detail&id={{id}}" class="btn btn-sm btn-info" title="Ver detalle">
-              <i class="fas fa-eye"></i>&nbsp;Detalle
+          <td class="bp-admin-actions">
+            <a href="index.php?page=History_Detail&id={{id}}" class="bp-btn-admin bp-btn-edit" title="Ver detalle">
+              <i class="fas fa-eye"></i>
             </a>
           </td>
         </tr>
@@ -68,37 +72,36 @@
   </div>
 
   {{if totalPages}}
-  <nav aria-label="Navegación de páginas">
-    <ul class="pagination justify-content-center">
-      {{if hasPrev}}
-      <li class="page-item">
-        <a class="page-link" href="index.php?page=History_History&p={{prevPage}}&estado={{estado}}"><i class="fas fa-chevron-left"></i> Anterior</a>
-      </li>
-      {{endif hasPrev}}
-      <li class="page-item disabled">
-        <span class="page-link">Página {{page}} de {{totalPages}}</span>
-      </li>
-      {{if hasNext}}
-      <li class="page-item">
-        <a class="page-link" href="index.php?page=History_History&p={{nextPage}}&estado={{estado}}">Siguiente <i class="fas fa-chevron-right"></i></a>
-      </li>
-      {{endif hasNext}}
-    </ul>
-  </nav>
+  <div class="bp-pagination" style="margin-top:1.25rem;">
+    {{if hasPrev}}
+    <a href="index.php?page=History_History&p={{prevPage}}&estado={{estado}}" class="bp-page-btn">
+      <i class="fas fa-chevron-left"></i>
+    </a>
+    {{endif hasPrev}}
+    <span class="bp-page-info">Página {{page}} de {{totalPages}}</span>
+    {{if hasNext}}
+    <a href="index.php?page=History_History&p={{nextPage}}&estado={{estado}}" class="bp-page-btn">
+      <i class="fas fa-chevron-right"></i>
+    </a>
+    {{endif hasNext}}
+  </div>
   {{endif totalPages}}
 
   {{endif hasPedidos}}
 
   {{ifnot hasPedidos}}
-  <div class="card text-center p-5 border-0 shadow-sm">
-    <div class="card-body">
-      <i class="fas fa-shopping-bag text-muted mb-3" style="font-size: 3.5rem;"></i>
-      <h3 class="h4">Aún no tienes compras registradas</h3>
-      <p class="text-muted mb-4">Cuando realices pedidos en la tienda, aparecerán listados aquí para que puedas darles seguimiento.</p>
-      <a href="index.php?page=Products_Products" class="btn btn-primary btn-lg">
-        <i class="fas fa-store"></i>&nbsp;Ir al Catálogo de Productos
-      </a>
-    </div>
+  <div class="bp-empty">
+    <i class="fas fa-shopping-bag"></i>
+    <p>Aún no tienes compras registradas. Cuando realices pedidos en la tienda, aparecerán listados aquí para que puedas darles seguimiento.</p>
+    <a href="index.php?page=Products_Products" class="bp-btn-cta">
+      <i class="fas fa-store"></i>&nbsp;Ir al Catálogo de Productos
+    </a>
   </div>
   {{endifnot hasPedidos}}
-</section>
+
+</div>
+
+<style>
+.bp-badge-pnd { background: #fff3cd; color: #856404; }
+.bp-status-tab.pnd.active { background: #856404; border-color: #856404; }
+</style>

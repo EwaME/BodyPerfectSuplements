@@ -43,7 +43,7 @@ class TwoFactorVerify extends \Controllers\PublicController
             }
         }
 
-        \Utilities\Site::addLink("public/css/security.css");
+        \Utilities\Site::addLink("public/css/security.css?v=" . (file_exists("public/css/security.css") ? filemtime("public/css/security.css") : time()));
         $dataView = get_object_vars($this);
         \Views\Renderer::render("security/twofactor_verify", $dataView);
     }

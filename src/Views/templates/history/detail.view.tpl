@@ -1,87 +1,82 @@
-<section class="container-m py-4">
-  <div class="mb-3">
-    <a href="{{returnUrl}}" class="text-decoration-none text-muted">
+<div class="container-m py-5">
+
+  <div style="margin-bottom:1rem;">
+    <a href="{{returnUrl}}" style="color:#666;text-decoration:none;">
       <i class="fas fa-arrow-left"></i>&nbsp;{{returnText}}
     </a>
   </div>
 
   {{with pedido}}
-  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-    <div>
-      <h1 class="h2 font-weight-bold mb-1">Orden #{{id}}</h1>
-      <p class="text-muted mb-0">Realizada el {{fecha}}</p>
-    </div>
-    <div class="d-flex gap-2 align-items-center mt-2 mt-md-0">
-      <span class="badge {{estadoBadge}} p-2 mr-2" style="font-size: 1rem;">{{estadoText}}</span>
-      <a href="index.php?page=History_Export&type=detail&id={{id}}" class="btn btn-outline-secondary btn-sm">
-        <i class="fas fa-file-csv"></i>&nbsp;Exportar CSV
-      </a>
-      <button onclick="window.print()" class="btn btn-outline-dark btn-sm">
-        <i class="fas fa-print"></i>&nbsp;Imprimir / Guardar PDF
-      </button>
-    </div>
+  <div class="row align-center" style="margin-bottom:0.25rem;">
+    <h2 style="margin:0;flex:1;">Orden #{{id}}</h2>
+  </div>
+  <p style="color:#666;margin-bottom:1rem;">Realizada el {{fecha}}</p>
+
+  <div class="row align-center" style="gap:0.6rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+    {{if isAPR}}<span class="bp-status-badge bp-badge-act" style="font-size:0.85rem;">Aprobado</span>{{endif isAPR}}
+    {{if isPND}}<span class="bp-status-badge bp-badge-pnd" style="font-size:0.85rem;">Pendiente</span>{{endif isPND}}
+    {{if isRCH}}<span class="bp-status-badge bp-badge-ina" style="font-size:0.85rem;">Rechazado</span>{{endif isRCH}}
+    {{if isCAN}}<span class="bp-status-badge bp-badge-ago" style="font-size:0.85rem;">Cancelado</span>{{endif isCAN}}
+    <a href="index.php?page=History_Export&type=detail&id={{id}}" class="bp-btn-cta" style="font-size:0.85rem;padding:0.5rem 1.1rem;">
+      <i class="fas fa-file-csv"></i>&nbsp;Exportar CSV
+    </a>
+    <button onclick="window.print()" class="bp-btn-outline" style="font-size:0.85rem;padding:0.5rem 1.1rem;border:none;cursor:pointer;">
+      <i class="fas fa-print"></i>&nbsp;Imprimir / Guardar PDF
+    </button>
   </div>
 
-  <div class="row mb-4">
-    <div class="col-md-6 mb-3 mb-md-0">
-      <div class="card h-100 shadow-sm border-0">
-        <div class="card-body">
-          <h5 class="card-title font-weight-bold"><i class="fas fa-receipt text-primary"></i>&nbsp;Resumen de Pago</h5>
-          <hr />
-          <p class="mb-1"><strong>Método de Pago:</strong> {{metodoPago}}</p>
-          {{if referenciaPasarela}}
-          <p class="mb-1"><strong>Ref. PayPal / Pasarela:</strong> <code>{{referenciaPasarela}}</code></p>
-          {{endif referenciaPasarela}}
-          <p class="mb-0"><strong>Monto Total:</strong> <span class="h5 text-primary mb-0 font-weight-bold">L. {{total}}</span></p>
-        </div>
-      </div>
-    </div>
-  </div>
+  <h3 style="font-size:1.05rem;margin-bottom:0.5rem;"><i class="fas fa-receipt"></i>&nbsp;Resumen de Pago</h3>
+  <hr style="margin:0 0 0.75rem;" />
+  <p style="margin-bottom:0.4rem;"><strong>Método de Pago:</strong> {{metodoPago}}</p>
+  {{if referenciaPasarela}}
+  <p style="margin-bottom:0.4rem;"><strong>Ref. PayPal / Pasarela:</strong> <code>{{referenciaPasarela}}</code></p>
+  {{endif referenciaPasarela}}
+  <p style="margin-bottom:1.5rem;"><strong>Monto Total:</strong> L. {{total}}</p>
   {{endwith pedido}}
 
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-header bg-white font-weight-bold">
-      <i class="fas fa-boxes"></i>&nbsp;Productos en esta orden
-    </div>
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead class="thead-light">
-          <tr>
-            <th>Producto</th>
-            <th class="text-center">Cantidad</th>
-            <th class="text-right">Precio Unitario</th>
-            <th class="text-right">Subtotal</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{foreach detalle}}
-          <tr>
-            <td>
-              <div class="d-flex align-items-center">
+  <h3 style="font-size:1.05rem;margin-bottom:0.75rem;"><i class="fas fa-boxes"></i>&nbsp;Productos en esta orden</h3>
+  <div class="WWList">
+    <table>
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Precio Unitario</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{foreach detalle}}
+        <tr>
+          <td>
+            <div class="row align-center" style="gap:0.75rem;">
+              <div class="bp-ac-img">
                 {{if productImgUrl}}
-                <img src="{{productImgUrl}}" alt="{{productName}}" class="img-thumbnail mr-3" style="width: 50px; height: 50px; object-fit: cover;" />
+                <img src="{{~BASE_DIR}}/public/imgs/products/{{productImgUrl}}" alt="{{productName}}" />
                 {{endif productImgUrl}}
-                <div>
-                  <strong>{{productName}}</strong>
-                  <div class="text-muted small">ID: {{productId}}</div>
-                </div>
+                {{ifnot productImgUrl}}
+                <div class="bp-ac-placeholder"><i class="fas fa-dumbbell"></i></div>
+                {{endifnot productImgUrl}}
               </div>
-            </td>
-            <td class="text-center">
-              <span class="badge badge-light px-3 py-2 border">{{cantidad}}</span>
-            </td>
-            <td class="text-right">L. {{precioUnitario}}</td>
-            <td class="text-right font-weight-bold">L. {{subtotal}}</td>
-          </tr>
-          {{endfor detalle}}
-        </tbody>
-        <tfoot>
-          <tr class="table-light">
-            <td colspan="3" class="text-right font-weight-bold">Total del Pedido:</td>
-            <td class="text-right font-weight-bold text-primary h5 mb-0">L. {{subtotalGeneral}}</td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
+              <div>
+                <strong>{{productName}}</strong>
+                <div style="color:#888;font-size:0.85rem;">ID: {{productId}}</div>
+              </div>
+            </div>
+          </td>
+          <td>{{cantidad}}</td>
+          <td>L. {{precioUnitario}}</td>
+          <td><strong>L. {{subtotal}}</strong></td>
+        </tr>
+        {{endfor detalle}}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3" style="text-align:right;"><strong>Total del Pedido:</strong></td>
+          <td><strong>L. {{subtotalGeneral}}</strong></td>
+        </tr>
+      </tfoot>
+    </table>
   </div>
-</section>
+
+</div>
