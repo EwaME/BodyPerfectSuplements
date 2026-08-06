@@ -146,6 +146,14 @@ CREATE TABLE IF NOT EXISTS `products` (
         ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4;
 
+-- Repara instalaciones viejas: si alguien ya tenía `products` de antes de
+-- que existieran estas columnas, `CREATE TABLE IF NOT EXISTS` de arriba no
+-- las agrega solo (la tabla ya existe, no la vuelve a crear). Sin esto, los
+-- INSERT de más abajo fallan con "Unknown column" en BDs desactualizadas.
+ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `productStock` int(11) NOT NULL DEFAULT 0 AFTER `productImgUrl`;
+ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `productStatus` char(3) NOT NULL DEFAULT 'ACT' AFTER `productStock`;
+ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `categoryId` int(11) DEFAULT NULL AFTER `productStatus`;
+
 CREATE TABLE IF NOT EXISTS `sales` (
     `saleId`    int(11)        NOT NULL AUTO_INCREMENT,
     `productId` int(11)        NOT NULL,
@@ -294,21 +302,46 @@ INSERT IGNORE INTO `categories` (`categoryId`, `categoryName`, `categoryDescript
 
 -- Catálogo de productos
 INSERT IGNORE INTO `products` (`productId`, `productName`, `productDescription`, `productPrice`, `productImgUrl`, `productStock`, `productStatus`, `categoryId`) VALUES
-    (11, 'Whey Protein Gold Standard 5lb',  'Proteína de suero sabor chocolate, 24g de proteína por servicio.',      1200.00, '',                             50, 'ACT', 2),
-    (12, 'Whey Protein Isolate 4lb',        'Isolate de alta pureza, bajo en lactosa. Sabor vainilla.',              1500.00, '',                             30, 'ACT', 2),
-    (13, 'Whey Protein 100% 3lb',           'Mezcla de concentrado e isolate. Sabor fresa.',                          850.00, '',                             40, 'ACT', 2),
-    (14, 'Proteína Vegana Chocolate 2lb',   'Base de guisante y arroz, libre de lactosa y gluten.',                   950.00, '',                             20, 'ACT', 3),
-    (15, 'Proteína Vegana Vainilla 2lb',    'Proteína vegetal completa con todos los aminoácidos esenciales.',       950.00, 'p6a7428bf27f912.77150080.png', 15, 'ACT', 3),
-    (16, 'C4 Original Pre-entreno 30 sv',   'Energía y enfoque para tu entrenamiento. Sabor sandía.',                 850.00, '',                             35, 'ACT', 4),
-    (17, 'NO-Xplode Pre-entreno 30 sv',     'Formula avanzada con cafeína, beta-alanina y creatina.',                 900.00, '',                             25, 'ACT', 4),
-    (18, 'Creatina Monohidratada 300g',     'Creatina pura micronizada, sin sabor. Aumenta fuerza y potencia.',       450.00, 'p6a742cd6ca37e1.69458195.jpg', 59, 'ACT', 5),
-    (19, 'Creatina Monohidratada 500g',     'Formato económico. Creatina de grado farmacéutico.',                     650.00, '',                             45, 'ACT', 5),
-    (20, 'BCAA 2:1:1 Powder 300g',          'Leucina, Isoleucina y Valina en proporción óptima. Sabor limón.',        700.00, '',                             40, 'ACT', 6),
-    (21, 'L-Glutamina 300g',                'Recuperación muscular y sistema inmune. Sin sabor.',                     550.00, 'p6a74127c7fd584.00532928.jpg', 30, 'ACT', 6),
-    (22, 'Multivitamínico Atleta 60 tabs',  'Fórmula completa con vitaminas A, C, D, E, zinc y magnesio.',            380.00, 'p6a741274275a04.96739663.jpg', 55, 'ACT', 7),
-    (23, 'Omega 3 Fish Oil 90 caps',        'EPA y DHA de alta concentración. Antiinflamatorio natural.',             420.00, 'p6a74126bdcc438.41700475.jpg', 40, 'ACT', 7),
-    (24, 'Quemador Lipo-6 Black 60 caps',   'Termogénico de acción rápida para definición muscular.',                 780.00, 'p6a7412642008f6.88826716.png', 20, 'ACT', 4),
-    (25, 'Caseína Micelar Chocolate 4lb',   'Proteína de digestión lenta, ideal para tomar en la noche.',            1300.00, 'p6a74125a1e1df4.53911948.png', 18, 'ACT', 2);
+    (11, 'Whey Protein Gold Standard 5lb',  'Proteína de suero sabor chocolate, 24g de proteína por servicio.',      1200.00, 'p6a74b50ad226e4.44276846.png', 50, 'ACT', 2),
+    (12, 'Whey Protein Isolate 4lb',        'Isolate de alta pureza, bajo en lactosa. Sabor vainilla.',              1500.00, 'p6a74b6a530ff72.47822017.jpg', 30, 'ACT', 2),
+    (13, 'Whey Protein 100% 3lb',           'Mezcla de concentrado e isolate. Sabor fresa.',                          850.00, 'p6a74b67d414e39.57298466.png', 40, 'ACT', 2),
+    (14, 'Proteína Vegana Chocolate 2lb',   'Base de guisante y arroz, libre de lactosa y gluten.',                   950.00, 'p6a74b6471196c0.19504878.png', 20, 'ACT', 3),
+    (15, 'Proteína Vegana Vainilla 2lb',    'Proteína vegetal completa con todos los aminoácidos esenciales.',       950.00, 'p6a74b63d168f12.53209269.jpg', 15, 'ACT', 3),
+    (16, 'C4 Original Pre-entreno 30 sv',   'Energía y enfoque para tu entrenamiento. Sabor sandía.',                 850.00, 'p6a74b4bd5f3b56.26044628.jpg', 35, 'ACT', 4),
+    (17, 'NO-Xplode Pre-entreno 30 sv',     'Formula avanzada con cafeína, beta-alanina y creatina.',                 900.00, 'p6a74b49aae3fb8.36926915.jpg', 25, 'ACT', 4),
+    (18, 'Creatina Monohidratada 300g',     'Creatina pura micronizada, sin sabor. Aumenta fuerza y potencia.',       450.00, 'p6a74b458319c30.72242533.jpg', 59, 'ACT', 5),
+    (19, 'Creatina Monohidratada 1000g',    'Formato más grande. Creatina de grado farmacéutico.',                   1050.00, 'p6a74b4796936d4.28944689.jpg', 45, 'ACT', 5),
+    (20, 'BCAA 2:1:1 Powder 300g',          'Leucina, Isoleucina y Valina en proporción óptima. Sabor limón.',        700.00, 'p6a74b41fcddd06.07885670.jpg', 40, 'ACT', 6),
+    (21, 'L-Glutamina 300g',                'Recuperación muscular y sistema inmune. Sin sabor.',                     550.00, 'p6a74b3fe629602.77012080.jpg', 30, 'ACT', 6),
+    (22, 'Multivitamínico Atleta 60 tabs',  'Fórmula completa con vitaminas A, C, D, E, zinc y magnesio.',            380.00, 'p6a74b609c55a17.98844933.jpg', 55, 'ACT', 7),
+    (23, 'Omega 3 Fish Oil 90 caps',        'EPA y DHA de alta concentración. Antiinflamatorio natural.',             420.00, 'p6a74b58f312327.95196840.jpg', 40, 'ACT', 7),
+    (24, 'Quemador Lipo-6 Black 60 caps',   'Termogénico de acción rápida para definición muscular.',                 780.00, 'p6a74b5b1e52769.07674842.jpg', 20, 'ACT', 4),
+    (25, 'Caseína Micelar Chocolate 4lb',   'Proteína de digestión lenta, ideal para tomar en la noche.',            1300.00, 'p6a74b4fa9a9892.88572906.jpg', 18, 'ACT', 2);
+
+-- Corrige filas de `products` que ya existían con datos viejos (INSERT IGNORE
+-- de arriba no las pisa). Seguro correrlo varias veces: siempre deja el
+-- mismo valor final, sea cual sea el estado previo de la fila.
+UPDATE `products` SET
+    `productName` = 'Creatina Monohidratada 1000g',
+    `productDescription` = 'Formato más grande. Creatina de grado farmacéutico.',
+    `productPrice` = 1050.00,
+    `productImgUrl` = 'p6a74b4796936d4.28944689.jpg'
+WHERE `productId` = 19;
+
+UPDATE `products` SET `productImgUrl` = 'p6a74b50ad226e4.44276846.png' WHERE `productId` = 11 AND `productImgUrl` <> 'p6a74b50ad226e4.44276846.png';
+UPDATE `products` SET `productImgUrl` = 'p6a74b6a530ff72.47822017.jpg' WHERE `productId` = 12 AND `productImgUrl` <> 'p6a74b6a530ff72.47822017.jpg';
+UPDATE `products` SET `productImgUrl` = 'p6a74b67d414e39.57298466.png' WHERE `productId` = 13 AND `productImgUrl` <> 'p6a74b67d414e39.57298466.png';
+UPDATE `products` SET `productImgUrl` = 'p6a74b6471196c0.19504878.png' WHERE `productId` = 14 AND `productImgUrl` <> 'p6a74b6471196c0.19504878.png';
+UPDATE `products` SET `productImgUrl` = 'p6a74b63d168f12.53209269.jpg' WHERE `productId` = 15 AND `productImgUrl` <> 'p6a74b63d168f12.53209269.jpg';
+UPDATE `products` SET `productImgUrl` = 'p6a74b4bd5f3b56.26044628.jpg' WHERE `productId` = 16 AND `productImgUrl` <> 'p6a74b4bd5f3b56.26044628.jpg';
+UPDATE `products` SET `productImgUrl` = 'p6a74b49aae3fb8.36926915.jpg' WHERE `productId` = 17 AND `productImgUrl` <> 'p6a74b49aae3fb8.36926915.jpg';
+UPDATE `products` SET `productImgUrl` = 'p6a74b458319c30.72242533.jpg' WHERE `productId` = 18 AND `productImgUrl` <> 'p6a74b458319c30.72242533.jpg';
+UPDATE `products` SET `productImgUrl` = 'p6a74b41fcddd06.07885670.jpg' WHERE `productId` = 20 AND `productImgUrl` <> 'p6a74b41fcddd06.07885670.jpg';
+UPDATE `products` SET `productImgUrl` = 'p6a74b3fe629602.77012080.jpg' WHERE `productId` = 21 AND `productImgUrl` <> 'p6a74b3fe629602.77012080.jpg';
+UPDATE `products` SET `productImgUrl` = 'p6a74b609c55a17.98844933.jpg' WHERE `productId` = 22 AND `productImgUrl` <> 'p6a74b609c55a17.98844933.jpg';
+UPDATE `products` SET `productImgUrl` = 'p6a74b58f312327.95196840.jpg' WHERE `productId` = 23 AND `productImgUrl` <> 'p6a74b58f312327.95196840.jpg';
+UPDATE `products` SET `productImgUrl` = 'p6a74b5b1e52769.07674842.jpg' WHERE `productId` = 24 AND `productImgUrl` <> 'p6a74b5b1e52769.07674842.jpg';
+UPDATE `products` SET `productImgUrl` = 'p6a74b4fa9a9892.88572906.jpg' WHERE `productId` = 25 AND `productImgUrl` <> 'p6a74b4fa9a9892.88572906.jpg';
 
 -- Destacados (inicio/fin relativos a NOW(): si la fila ya existe se ignora
 -- tal cual estaba; si no existe, arranca fresca 30 días desde que se corre).
