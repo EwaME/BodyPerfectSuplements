@@ -53,14 +53,25 @@ Proyecto final de Negocios Web. Tienda de suplementos deportivos bajo el modelo 
    PWD_HASH = BodyPerfect2026SecretHash
    ```
 
-4. Crear la base de datos y ejecutar los scripts **en orden**:
+4. Crear/actualizar la base de datos con el script maestro:
+   ```bash
+   mysql -u root ecommerce < sql/schema.sql
    ```
-   docs/scripts/00_database.sql   → Crear schema
-   docs/scripts/01_security.sql   → Tablas de seguridad y RBAC
-   docs/scripts/02_catalogo.sql   → Categorías, productos, sales, highlights, reviews
-   docs/scripts/03_carretillas.sql → Carrito autenticado y anónimo
-   docs/scripts/04_pedidos.sql    → Pedidos, detalle y transacciones
-   docs/scripts/05_2fa.sql        → Secretos TOTP para 2FA
+   Es **idempotente**: crea todo desde cero si la base está vacía, y si ya
+   tenías algo creado, solo agrega lo que falte (tablas y filas nuevas) sin
+   duplicar ni borrar nada existente. Correrlo de nuevo después de un
+   `git pull` es la forma de quedar al día con el esquema y el catálogo
+   más reciente del equipo.
+
+   > Los scripts en `docs/scripts/00_*.sql` a `05_*.sql` quedan como
+   > referencia histórica (documentan cómo se construyó cada módulo paso
+   > a paso) pero **no son idempotentes** — no los vuelvas a correr sobre
+   > una base que ya los tiene, van a fallar con "table already exists".
+   > Para instalar o actualizar, usá siempre `sql/schema.sql`.
+
+   Opcional — reseñas de ejemplo (requiere usuarios y productos ya creados):
+   ```bash
+   mysql -u root ecommerce < docs/scripts/06_demo_reviews.sql
    ```
 
 5. Generar el usuario administrador inicial:
