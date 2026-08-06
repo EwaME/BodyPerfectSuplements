@@ -79,8 +79,17 @@ class Checkout extends PublicController
                 \Utilities\Context::getContextByKey("PAYPAL_CLIENT_SECRET"),
                 $environment
             );
-            $PayPalRestApi->getAccessToken();
-            $response = $PayPalRestApi->createOrder($PayPalOrder);
+            try {
+                $PayPalRestApi->getAccessToken();
+                $response = $PayPalRestApi->createOrder($PayPalOrder);
+            } catch (\RuntimeException $e) {
+                \Dao\Checkout\Pedidos::actualizarEstado($pedidoId, 'CAN');
+                unset($_SESSION["pedidoId"]);
+                \Utilities\Site::redirectToWithMsg(
+                    "index.php?page=Checkout_Cart",
+                    "No se pudo conectar con PayPal. Verifica las credenciales en parameters.env."
+                );
+            }
 
             $_SESSION["orderid"] = $response->id;
             \Dao\Checkout\Pedidos::crearTransaccion($pedidoId, $response->id, $total);

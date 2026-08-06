@@ -9,19 +9,30 @@
         <i class="fas fa-dumbbell"></i>
       </div>
       {{endifnot productImgUrl}}
+
       {{if hasSale}}
       <span class="bp-badge-sale">Oferta</span>
       {{endif hasSale}}
       {{if isAgotado}}
       <span class="bp-badge-oos">Agotado</span>
       {{endif isAgotado}}
+
+      {{ifnot isAgotado}}
+      <div class="bp-card-overlay">
+        <a href="index.php?page=Products_Detail&id={{productId}}" class="bp-overlay-btn">
+          <i class="fas fa-eye"></i>&nbsp;Ver producto
+        </a>
+      </div>
+      {{endifnot isAgotado}}
     </div>
+
     <div class="bp-card-body">
       {{if categoryName}}
       <div class="bp-card-cat">{{categoryName}}</div>
       {{endif categoryName}}
       <h3 class="bp-card-name">{{productName}}</h3>
       <p class="bp-card-desc">{{productDescription}}</p>
+
       <div class="bp-card-footer">
         <div class="bp-price-block">
           {{if hasSale}}
@@ -33,11 +44,11 @@
           {{endifnot hasSale}}
         </div>
         {{if isAgotado}}
-        <span class="bp-status-ago"><i class="fas fa-times-circle"></i> Agotado</span>
+        <span class="bp-status-ago"><i class="fas fa-times-circle"></i>&nbsp;Agotado</span>
         {{endif isAgotado}}
         {{ifnot isAgotado}}
         <a href="index.php?page=Products_Detail&id={{productId}}" class="bp-card-link">
-          Ver producto
+          Ver&nbsp;<i class="fas fa-arrow-right"></i>
         </a>
         {{endifnot isAgotado}}
       </div>

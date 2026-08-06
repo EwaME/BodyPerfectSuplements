@@ -1,18 +1,27 @@
-<div class="container-m py-5">
-
-  <h2 class="bp-section-title" style="margin-bottom:1.25rem;"><i class="fas fa-store"></i>&nbsp;Catálogo de Productos</h2>
-
-  <!-- Buscador principal -->
-  <div class="bp-search-wrap">
-    <i class="fas fa-search bp-search-icon-left"></i>
-    <input type="text" id="bp-search-input" value="{{search}}"
-           placeholder="Buscar suplementos, marcas, categorías..."
-           class="bp-search-input" autocomplete="off" />
-    <button type="button" id="bp-search-clear" class="bp-search-clear">
-      <i class="fas fa-times"></i>
-    </button>
-    <div id="bp-search-dropdown" class="bp-search-dropdown"></div>
+<!-- ===== BANNER ===== -->
+<div class="bp-cat-banner">
+  <div class="bp-cat-banner-bg"></div>
+  <div class="container-m bp-cat-banner-inner">
+    <div class="bp-cat-banner-text">
+      <h2><i class="fas fa-store"></i>&nbsp;Catálogo</h2>
+      <p>Suplementos de calidad para tu rendimiento</p>
+    </div>
+    <div class="bp-search-wrap">
+      <i class="fas fa-search bp-search-icon-left"></i>
+      <input type="text" id="bp-search-input" value="{{search}}"
+             placeholder="Buscar suplementos, marcas, categorías..."
+             class="bp-search-input" autocomplete="off" />
+      <button type="button" id="bp-search-clear" class="bp-search-clear">
+        <i class="fas fa-times"></i>
+      </button>
+      <div id="bp-search-dropdown" class="bp-search-dropdown"></div>
+    </div>
   </div>
+</div>
+
+<!-- ===== MAIN ===== -->
+<div class="container-m" style="padding:1.5rem 1rem 3rem;">
+<script>window.__BP_BASE = '{{~BASE_DIR}}';</script>
 
   <form id="bp-filter-form" method="GET" action="index.php">
     <input type="hidden" name="page" value="Products_Products" />
@@ -20,55 +29,75 @@
 
     <div class="bp-catalog-layout">
 
-      <!-- Sidebar filtros -->
+      <!-- ===== SIDEBAR ===== -->
       <aside class="bp-filter-sidebar">
-        <div class="bp-sidebar-header">
-          <span>Filtros</span>
-          <a href="index.php?page=Products_Products" class="bp-sidebar-clear">Limpiar todo</a>
+
+        <div class="bp-sidebar-head">
+          <span><i class="fas fa-sliders-h"></i>&nbsp;Filtros</span>
+          <a href="index.php?page=Products_Products" class="bp-sidebar-reset">
+            <i class="fas fa-rotate-left"></i>&nbsp;Limpiar
+          </a>
         </div>
 
-        <div class="bp-sidebar-section">
-          <div class="bp-sidebar-title">Categorías</div>
-          <label class="bp-sidebar-radio">
-            <input type="radio" name="cat" value="" {{ifnot catId}}checked{{endifnot catId}} />
-            <span>Todas</span>
-          </label>
-          {{foreach categorias}}
-          <label class="bp-sidebar-radio">
-            <input type="radio" name="cat" value="{{categoryId}}" {{if isActive}}checked{{endif isActive}} />
-            <span>{{categoryName}}</span>
-          </label>
-          {{endfor categorias}}
+        <!-- Categorías -->
+        <div class="bp-sidebar-block">
+          <div class="bp-sidebar-label">
+            <i class="fas fa-tag"></i>&nbsp;Categoría
+          </div>
+          <div class="bp-cat-list">
+            <label class="bp-cat-pill">
+              <input type="radio" name="cat" value="" {{ifnot catId}}checked{{endifnot catId}} />
+              <span>Todas</span>
+            </label>
+            {{foreach categorias}}
+            <label class="bp-cat-pill">
+              <input type="radio" name="cat" value="{{categoryId}}" {{if isActive}}checked{{endif isActive}} />
+              <span>{{categoryName}}</span>
+            </label>
+            {{endfor categorias}}
+          </div>
         </div>
 
-        <div class="bp-sidebar-section bp-price-section">
-          <div class="bp-sidebar-title"><i class="fas fa-coins"></i>&nbsp;Rango de Precio</div>
-          <div class="bp-price-inputs">
-            <label class="bp-price-field">
-              <span class="bp-price-currency">L.</span>
+        <!-- Precio -->
+        <div class="bp-sidebar-block bp-price-block-filter">
+          <div class="bp-sidebar-label">
+            <i class="fas fa-coins"></i>&nbsp;Precio (L.)
+          </div>
+          <div class="bp-price-row">
+            <div class="bp-price-input-wrap">
+              <span class="bp-pinput-prefix">Mín</span>
               <input type="number" id="bp-price-min" name="minPrice" min="0" step="1"
-                     placeholder="0" value="{{minPrice}}" />
-            </label>
-            <span class="bp-price-sep"><i class="fas fa-arrow-right-long"></i></span>
-            <label class="bp-price-field">
-              <span class="bp-price-currency">L.</span>
+                     placeholder="0" value="{{minPrice}}" class="bp-pinput" />
+            </div>
+            <span class="bp-price-dash">—</span>
+            <div class="bp-price-input-wrap">
+              <span class="bp-pinput-prefix">Máx</span>
               <input type="number" id="bp-price-max" name="maxPrice" min="0" step="1"
-                     placeholder="{{maxPriceSlider}}" value="{{maxPrice}}" />
-            </label>
+                     placeholder="{{maxPriceSlider}}" value="{{maxPrice}}" class="bp-pinput" />
+            </div>
           </div>
-          <div class="bp-price-presets">
-            <button type="button" class="bp-price-chip" data-min="" data-max="30">Menos de L.30</button>
-            <button type="button" class="bp-price-chip" data-min="30" data-max="60">L.30 – L.60</button>
-            <button type="button" class="bp-price-chip" data-min="60" data-max="">Más de L.60</button>
+          <div class="bp-chip-row">
+            <button type="button" class="bp-chip" data-min="" data-max="500">— L.500</button>
+            <button type="button" class="bp-chip" data-min="500" data-max="1500">L.500–1,500</button>
+            <button type="button" class="bp-chip" data-min="1500" data-max="">L.1,500+</button>
           </div>
         </div>
+
+        <div class="bp-sidebar-apply">
+          <button type="submit" class="bp-btn-apply">
+            <i class="fas fa-check"></i>&nbsp;Aplicar filtros
+          </button>
+        </div>
+
       </aside>
 
-      <!-- Contenido principal -->
+      <!-- ===== MAIN GRID ===== -->
       <div class="bp-catalog-main">
 
         {{if productos}}
-        <p class="bp-result-count">{{total}} producto(s) encontrado(s)</p>
+        <div class="bp-result-bar">
+          <span class="bp-result-count"><i class="fas fa-box-open"></i>&nbsp;{{total}} producto(s) encontrado(s)</span>
+        </div>
         <div class="grid bp-product-grid">
           {{foreach productos}}
           {{include partials/product_card}}
@@ -101,10 +130,8 @@
       </div>
     </div>
   </form>
-
 </div>
 
-<script>window.__BP_BASE = '{{~BASE_DIR}}';</script>
 <script>
 (function () {
   var form      = document.getElementById('bp-filter-form');
@@ -117,7 +144,6 @@
   var priceMax  = document.getElementById('bp-price-max');
   var submitTimer, acTimer;
 
-  /* helpers */
   function escHtml(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
@@ -136,13 +162,11 @@
     submitTimer = setTimeout(submitForm, 420);
   }
 
-  /* precio */
   function normalizePrice() {
     var lo = priceMin.value !== '' ? parseFloat(priceMin.value) : null;
     var hi = priceMax.value !== '' ? parseFloat(priceMax.value) : null;
     if (lo !== null && hi !== null && lo > hi) {
-      priceMin.value = hi;
-      priceMax.value = lo;
+      priceMin.value = hi; priceMax.value = lo;
     }
   }
   [priceMin, priceMax].forEach(function (el) {
@@ -152,8 +176,7 @@
     });
   });
 
-  /* chips de precio rápido */
-  form.querySelectorAll('.bp-price-chip').forEach(function (chip) {
+  form.querySelectorAll('.bp-chip').forEach(function (chip) {
     chip.addEventListener('click', function () {
       priceMin.value = chip.dataset.min || '';
       priceMax.value = chip.dataset.max || '';
@@ -161,7 +184,6 @@
     });
   });
 
-  /* clear button */
   function updateClear() { clearBtn.style.display = searchVis.value ? 'flex' : 'none'; }
   updateClear();
   clearBtn.addEventListener('click', function () {
@@ -169,7 +191,6 @@
     updateClear(); hideDropdown(); submitForm();
   });
 
-  /* search */
   searchVis.addEventListener('input', function () {
     updateClear(); debounceSubmit();
     clearTimeout(acTimer);
@@ -183,10 +204,8 @@
     if (searchVis.value.length >= 2) fetchAutocomplete(searchVis.value);
   });
 
-  /* categories */
   cats.forEach(function (r) { r.addEventListener('change', submitForm); });
 
-  /* autocomplete */
   function fetchAutocomplete(q) {
     if (q.length < 2) { hideDropdown(); return; }
     fetch('index.php?page=Products_Autocomplete&q=' + encodeURIComponent(q))
