@@ -1,11 +1,30 @@
 <div class="container-m" style="padding: 2rem 1rem;">
 
-  <h2 style="margin-bottom:1.5rem; font-size:1.6rem;">
+  <h2 style="margin-bottom:1rem; font-size:1.6rem;">
     <i class="fas fa-chart-line"></i>&nbsp;Dashboard Administrativo
   </h2>
 
+  <div class="bp-quick-actions">
+    <a href="index.php?page=History_Admin" class="bp-action-link">
+      <span class="bp-action-icon" style="background:rgba(43,130,81,.1); color:#2b8251;"><i class="fas fa-receipt"></i></span>
+      <span class="bp-action-text">
+        <strong>Transacciones globales</strong>
+        <small>Ver historial completo de ventas</small>
+      </span>
+      <i class="fas fa-chevron-right bp-action-arrow"></i>
+    </a>
+    <a href="index.php?page=Products_Admin" class="bp-action-link">
+      <span class="bp-action-icon" style="background:rgba(43,92,130,.1); color:#2b5c82;"><i class="fas fa-boxes-stacked"></i></span>
+      <span class="bp-action-text">
+        <strong>Admin productos</strong>
+        <small>Gestionar catálogo e inventario</small>
+      </span>
+      <i class="fas fa-chevron-right bp-action-arrow"></i>
+    </a>
+  </div>
+
   <!-- Tarjetas de resumen -->
-  <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:2rem;">
+  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:2rem;">
     <div class="bp-stat-card">
       <div class="bp-stat-icon" style="color:#10b981;"><i class="fas fa-money-bill-wave"></i></div>
       <div class="bp-stat-value">L. {{totalIngresos}}</div>
@@ -29,7 +48,7 @@
   </div>
 
   <!-- Gráficas -->
-  <div class="grid" style="grid-template-columns: 1fr 1fr; gap:1.5rem; margin-bottom:2rem;">
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-bottom:2rem;">
 
     <div class="bp-chart-card">
       <h3><i class="fas fa-calendar-alt"></i>&nbsp;Ingresos últimos 7 días</h3>
@@ -78,6 +97,54 @@
 </div>
 
 <style>
+.bp-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+.bp-action-link {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  background: #fff;
+  border: 1px solid #eef0f3;
+  border-radius: 12px;
+  padding: .9rem 1.1rem;
+  width: 100%;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,.05);
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.bp-action-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,.09);
+  border-color: #e2e5ea;
+}
+.bp-action-icon {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+.bp-action-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.35;
+}
+.bp-action-text strong { color: #1e293b; font-size: .95rem; }
+.bp-action-text small { color: #94a3b8; font-size: .78rem; }
+.bp-action-arrow {
+  margin-left: auto;
+  color: #cbd5e1;
+  font-size: .8rem;
+  transition: transform .15s ease, color .15s ease;
+}
+.bp-action-link:hover .bp-action-arrow { transform: translateX(3px); color: #94a3b8; }
 .bp-stat-card {
   background: #fff;
   border-radius: 12px;

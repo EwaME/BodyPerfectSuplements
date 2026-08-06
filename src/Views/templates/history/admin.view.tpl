@@ -1,62 +1,61 @@
-<section class="container-m py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-    <div>
-      <h1 class="h2 font-weight-bold mb-1"><i class="fas fa-tasks text-primary"></i>&nbsp;Panel Admin: Transacciones del Sistema</h1>
-      <p class="text-muted mb-0">Supervisión y auditoría consolidada de todas las ordenes y compras.</p>
+<div class="container-m py-5">
+
+  <div class="row align-center" style="margin-bottom:1.5rem;">
+    <div style="flex:1;">
+      <h2 style="margin:0;"><i class="fas fa-tasks"></i>&nbsp;Transacciones Globales</h2>
+      <p style="color:#666;margin:0.35rem 0 0;">Supervisión y auditoría consolidada de todas las órdenes y compras.</p>
     </div>
     {{if hasTransacciones}}
-    <div class="d-flex gap-2 align-items-center mt-2 mt-md-0">
-      <a href="index.php?page=History_Export&type=admin&q={{search}}&estado={{estado}}&fechaInicio={{fechaInicio}}&fechaFin={{fechaFin}}" class="btn btn-outline-secondary btn-sm">
+    <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+      <a href="index.php?page=History_Export&type=admin&q={{search}}&estado={{estado}}&fechaInicio={{fechaInicio}}&fechaFin={{fechaFin}}" class="bp-btn-cta" style="font-size:0.9rem;padding:0.6rem 1.2rem;">
         <i class="fas fa-file-csv"></i>&nbsp;Exportar CSV
       </a>
-      <button onclick="window.print()" class="btn btn-outline-dark btn-sm">
-        <i class="fas fa-print"></i>&nbsp;Imprimir / Guardar PDF
+      <button onclick="window.print()" type="button" class="bp-btn-outline" style="font-size:0.9rem;">
+        <i class="fas fa-print"></i>&nbsp;Imprimir
       </button>
     </div>
     {{endif hasTransacciones}}
   </div>
 
-  <div class="card mb-4 shadow-sm border-0">
-    <div class="card-body p-3">
-      <form action="index.php" method="get" class="row g-3 align-items-end">
-        <input type="hidden" name="page" value="History_Admin" />
-        
-        <div class="col-md-3">
-          <label class="form-label font-weight-bold">Búsqueda general</label>
-          <input type="text" name="q" value="{{search}}" placeholder="Cliente, correo, # orden o ref..." class="form-control" />
-        </div>
-
-        <div class="col-md-3">
-          <label class="form-label font-weight-bold">Estado</label>
-          <select name="estado" class="form-control">
-            <option value="ALL" {{if isFilterAll}}selected{{endif isFilterAll}}>Todos los estados</option>
-            <option value="APR" {{if isFilterAPR}}selected{{endif isFilterAPR}}>Aprobados</option>
-            <option value="PND" {{if isFilterPND}}selected{{endif isFilterPND}}>Pendientes</option>
-            <option value="RCH" {{if isFilterRCH}}selected{{endif isFilterRCH}}>Rechazados</option>
-          </select>
-        </div>
-
-        <div class="col-md-2">
-          <label class="form-label font-weight-bold">Desde</label>
-          <input type="date" name="fechaInicio" value="{{fechaInicio}}" class="form-control" />
-        </div>
-
-        <div class="col-md-2">
-          <label class="form-label font-weight-bold">Hasta</label>
-          <input type="date" name="fechaFin" value="{{fechaFin}}" class="form-control" />
-        </div>
-
-        <div class="col-md-2 d-flex gap-2">
-          <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search"></i>&nbsp;Filtrar</button>
-        </div>
-      </form>
+  <!-- Filtros -->
+  <form method="GET" action="index.php" class="bp-filter-card">
+    <input type="hidden" name="page" value="History_Admin" />
+    <div class="bp-filter-grid">
+      <div class="bp-filter-field">
+        <label>Búsqueda general</label>
+        <input type="text" name="q" value="{{search}}" placeholder="Cliente, correo, # orden o ref..." />
+      </div>
+      <div class="bp-filter-field">
+        <label>Estado</label>
+        <select name="estado">
+          <option value="ALL" {{if isFilterAll}}selected{{endif isFilterAll}}>Todos los estados</option>
+          <option value="APR" {{if isFilterAPR}}selected{{endif isFilterAPR}}>Aprobados</option>
+          <option value="PND" {{if isFilterPND}}selected{{endif isFilterPND}}>Pendientes</option>
+          <option value="RCH" {{if isFilterRCH}}selected{{endif isFilterRCH}}>Rechazados</option>
+        </select>
+      </div>
+      <div class="bp-filter-field">
+        <label>Desde</label>
+        <input type="date" name="fechaInicio" value="{{fechaInicio}}" />
+      </div>
+      <div class="bp-filter-field">
+        <label>Hasta</label>
+        <input type="date" name="fechaFin" value="{{fechaFin}}" />
+      </div>
+      <div class="bp-filter-field bp-filter-submit">
+        <button type="submit" class="primary"><i class="fas fa-search"></i>&nbsp;Filtrar</button>
+      </div>
     </div>
-  </div>
+  </form>
 
   {{if hasTransacciones}}
-  <div class="table-responsive bg-white rounded shadow-sm border mb-4">
-    <table class="table table-hover align-middle mb-0">
-      <thead class="thead-light">
+  <div class="bp-admin-result-info">
+    <span>{{total}} transacción(es) encontrada(s)</span>
+  </div>
+
+  <div class="WWList">
+    <table>
+      <thead>
         <tr>
           <th># Orden</th>
           <th>Cliente / Correo</th>
@@ -65,7 +64,7 @@
           <th>Items</th>
           <th>Monto Total</th>
           <th>Estado</th>
-          <th class="text-right">Acciones</th>
+          <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
@@ -74,21 +73,19 @@
           <td><strong>#{{id}}</strong></td>
           <td>
             <div><strong>{{username}}</strong></div>
-            <div class="text-muted small">{{useremail}}</div>
+            <div class="bp-cell-sub">{{useremail}}</div>
           </td>
           <td>{{fecha}}</td>
           <td>
-            <div><span class="badge badge-light text-dark"><i class="fab fa-paypal text-info"></i>&nbsp;{{metodoPago}}</span></div>
-            {{if referenciaPasarela}}<small class="text-muted font-monospace">{{referenciaPasarela}}</small>{{endif referenciaPasarela}}
+            <div><i class="fab fa-paypal"></i>&nbsp;{{metodoPago}}</div>
+            {{if referenciaPasarela}}<div class="bp-cell-sub bp-cell-mono">{{referenciaPasarela}}</div>{{endif referenciaPasarela}}
           </td>
           <td>{{totalItems}} item(s)</td>
-          <td><strong class="text-primary">L. {{total}}</strong></td>
-          <td>
-            <span class="badge {{estadoBadge}} p-2">{{estadoText}}</span>
-          </td>
-          <td class="text-right">
-            <a href="index.php?page=History_Detail&id={{id}}&from=admin" class="btn btn-sm btn-info" title="Ver detalle">
-              <i class="fas fa-eye"></i>&nbsp;Detalle
+          <td><strong>L. {{total}}</strong></td>
+          <td><span class="bp-status-badge {{estadoBadge}}">{{estadoText}}</span></td>
+          <td class="bp-admin-actions">
+            <a href="index.php?page=History_Detail&id={{id}}&from=admin" class="bp-btn-admin bp-btn-edit" title="Ver detalle">
+              <i class="fas fa-eye"></i>
             </a>
           </td>
         </tr>
@@ -98,34 +95,83 @@
   </div>
 
   {{if totalPages}}
-  <nav aria-label="Navegación de páginas admin">
-    <ul class="pagination justify-content-center">
-      {{if hasPrev}}
-      <li class="page-item">
-        <a class="page-link" href="index.php?page=History_Admin&p={{prevPage}}&q={{search}}&estado={{estado}}&fechaInicio={{fechaInicio}}&fechaFin={{fechaFin}}"><i class="fas fa-chevron-left"></i> Anterior</a>
-      </li>
-      {{endif hasPrev}}
-      <li class="page-item disabled">
-        <span class="page-link">Página {{page}} de {{totalPages}}</span>
-      </li>
-      {{if hasNext}}
-      <li class="page-item">
-        <a class="page-link" href="index.php?page=History_Admin&p={{nextPage}}&q={{search}}&estado={{estado}}&fechaInicio={{fechaInicio}}&fechaFin={{fechaFin}}">Siguiente <i class="fas fa-chevron-right"></i></a>
-      </li>
-      {{endif hasNext}}
-    </ul>
-  </nav>
+  <div class="bp-pagination" style="margin-top:1.25rem;">
+    {{if hasPrev}}
+    <a href="index.php?page=History_Admin&p={{prevPage}}&q={{search}}&estado={{estado}}&fechaInicio={{fechaInicio}}&fechaFin={{fechaFin}}" class="bp-page-btn">
+      <i class="fas fa-chevron-left"></i>
+    </a>
+    {{endif hasPrev}}
+    <span class="bp-page-info">Página {{page}} de {{totalPages}}</span>
+    {{if hasNext}}
+    <a href="index.php?page=History_Admin&p={{nextPage}}&q={{search}}&estado={{estado}}&fechaInicio={{fechaInicio}}&fechaFin={{fechaFin}}" class="bp-page-btn">
+      <i class="fas fa-chevron-right"></i>
+    </a>
+    {{endif hasNext}}
+  </div>
   {{endif totalPages}}
 
   {{endif hasTransacciones}}
 
   {{ifnot hasTransacciones}}
-  <div class="card text-center p-5 border-0 shadow-sm">
-    <div class="card-body">
-      <i class="fas fa-search text-muted mb-3" style="font-size: 3rem;"></i>
-      <h3 class="h4">No se encontraron transacciones</h3>
-      <p class="text-muted">No existen registros que coincidan con los criterios o filtros seleccionados.</p>
-    </div>
+  <div class="bp-empty">
+    <i class="fas fa-search"></i>
+    <p>No existen registros que coincidan con los criterios o filtros seleccionados.</p>
   </div>
   {{endifnot hasTransacciones}}
-</section>
+
+</div>
+
+<style>
+.bp-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  background: #fff;
+  color: #333 !important;
+  border: 2px solid #999;
+  padding: 0.6rem 1.2rem;
+  font-weight: 700;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.bp-btn-outline:hover { background: #f2f2f2; }
+
+.bp-filter-card {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e6e6e6;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+.bp-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  align-items: end;
+}
+.bp-filter-field label {
+  display: block;
+  font-size: 0.8rem;
+  margin-bottom: 0.4rem;
+  color: #555;
+}
+.bp-filter-field input,
+.bp-filter-field select {
+  width: 100%;
+  box-sizing: border-box;
+}
+.bp-filter-submit button {
+  width: 100%;
+  justify-content: center;
+}
+
+.bp-admin-result-info {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.bp-cell-sub { color: #888; font-size: 0.8rem; }
+.bp-cell-mono { font-family: monospace; }
+
+.bp-badge-pnd { background: #fff3cd; color: #856404; }
+</style>

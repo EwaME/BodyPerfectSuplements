@@ -1,35 +1,9 @@
--- =============================================================
--- BodyPerfect Suplementos — Script Maestro de Base de Datos
--- Framework: Simple PHP MVC OOP — Proyecto Final Negocios Web
---
--- USO: Correr este archivo completo, siempre, para lo que sea:
---   - Instalación limpia (BD nueva)     -> crea todo desde cero.
---   - Ya tenés la BD creada de antes    -> solo agrega lo que
---     falte (tablas nuevas, filas nuevas). No borra ni duplica
---     nada de lo que ya tenías.
---
---   mysql -u root ecommerce < sql/schema.sql
---
--- Es 100% idempotente: todo CREATE TABLE usa IF NOT EXISTS y
--- todo INSERT usa IGNORE (se salta filas que ya existen por su
--- Primary Key). Correrlo dos veces es seguro.
---
--- Refleja el estado real de la BD `ecommerce` compartida por el
--- equipo al 2026-08-06 (mismas columnas que docs/scripts/*.sql,
--- que es lo que efectivamente se corrió para crearla).
--- =============================================================
-
 CREATE SCHEMA IF NOT EXISTS `ecommerce` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 USE `ecommerce`;
 
 SET FOREIGN_KEY_CHECKS = 0;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
-
--- -------------------------------------------------------------
--- MÓDULO D — Seguridad (usuarios, roles, RBAC, bitácora)
--- Nomenclatura exacta del framework del curso.
--- -------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS `usuario` (
     `usercod`     bigint(10)   NOT NULL AUTO_INCREMENT,
@@ -97,10 +71,6 @@ CREATE TABLE IF NOT EXISTS `bitacora` (
     PRIMARY KEY (`bitacoracod`)
 ) ENGINE = InnoDB AUTO_INCREMENT = 10 DEFAULT CHARSET = utf8;
 
--- -------------------------------------------------------------
--- MÓDULO D Extra — 2FA / TOTP para rol admin
--- -------------------------------------------------------------
-
 CREATE TABLE IF NOT EXISTS `two_factor_secrets` (
     `id`       int(11)     NOT NULL AUTO_INCREMENT,
     `usercod`  bigint(10)  NOT NULL,
@@ -112,11 +82,6 @@ CREATE TABLE IF NOT EXISTS `two_factor_secrets` (
         REFERENCES `usuario` (`usercod`)
         ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4;
-
--- -------------------------------------------------------------
--- MÓDULO B — Catálogo de Productos
--- categories antes que products (FK)
--- -------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS `categories` (
     `categoryId`          int(11)      NOT NULL AUTO_INCREMENT,
@@ -145,6 +110,10 @@ CREATE TABLE IF NOT EXISTS `products` (
         REFERENCES `categories` (`categoryId`)
         ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4;
+
+ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `productStock` int(11) NOT NULL DEFAULT 0 AFTER `productImgUrl`;
+ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `productStatus` char(3) NOT NULL DEFAULT 'ACT' AFTER `productStock`;
+ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `categoryId` int(11) DEFAULT NULL AFTER `productStatus`;
 
 CREATE TABLE IF NOT EXISTS `sales` (
     `saleId`    int(11)        NOT NULL AUTO_INCREMENT,
@@ -189,10 +158,6 @@ CREATE TABLE IF NOT EXISTS `reviews` (
         ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4;
 
--- -------------------------------------------------------------
--- MÓDULO C — Carrito de Compras (patrón TTL, sin campo de estado)
--- -------------------------------------------------------------
-
 CREATE TABLE IF NOT EXISTS `carretilla` (
     `usercod`   bigint(10)     NOT NULL,
     `productId` int(11)        NOT NULL,
@@ -221,10 +186,6 @@ CREATE TABLE IF NOT EXISTS `carretillaanon` (
         REFERENCES `products` (`productId`)
         ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
-
--- -------------------------------------------------------------
--- MÓDULO E — Pasarela de pagos: pedidos, detalle, transacciones
--- -------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS `pedidos` (
     `id`      int(11)        NOT NULL AUTO_INCREMENT,
@@ -273,16 +234,12 @@ CREATE TABLE IF NOT EXISTS `transacciones` (
         ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4;
 
--- =============================================================
--- DATOS SEMILLA — refleja el catálogo real del equipo (2026-08-06)
--- =============================================================
-
--- Roles base del sistema
+-- roles del sistema
 INSERT IGNORE INTO `roles` (`rolescod`, `rolesdsc`, `rolesest`) VALUES
     ('ADM', 'Administrador', 'ACT'),
     ('CLI', 'Cliente',       'ACT');
 
--- Categorías
+-- categorías
 INSERT IGNORE INTO `categories` (`categoryId`, `categoryName`, `categoryDescription`, `parentCategoryId`) VALUES
     (1, 'Proteínas',          'Suplementos proteicos',            NULL),
     (2, 'Whey Protein',       'Proteína de suero de leche',       1),
@@ -294,24 +251,45 @@ INSERT IGNORE INTO `categories` (`categoryId`, `categoryName`, `categoryDescript
 
 -- Catálogo de productos
 INSERT IGNORE INTO `products` (`productId`, `productName`, `productDescription`, `productPrice`, `productImgUrl`, `productStock`, `productStatus`, `categoryId`) VALUES
-    (11, 'Whey Protein Gold Standard 5lb',  'Proteína de suero sabor chocolate, 24g de proteína por servicio.',      1200.00, '',                             50, 'ACT', 2),
-    (12, 'Whey Protein Isolate 4lb',        'Isolate de alta pureza, bajo en lactosa. Sabor vainilla.',              1500.00, '',                             30, 'ACT', 2),
-    (13, 'Whey Protein 100% 3lb',           'Mezcla de concentrado e isolate. Sabor fresa.',                          850.00, '',                             40, 'ACT', 2),
-    (14, 'Proteína Vegana Chocolate 2lb',   'Base de guisante y arroz, libre de lactosa y gluten.',                   950.00, '',                             20, 'ACT', 3),
-    (15, 'Proteína Vegana Vainilla 2lb',    'Proteína vegetal completa con todos los aminoácidos esenciales.',       950.00, 'p6a7428bf27f912.77150080.png', 15, 'ACT', 3),
-    (16, 'C4 Original Pre-entreno 30 sv',   'Energía y enfoque para tu entrenamiento. Sabor sandía.',                 850.00, '',                             35, 'ACT', 4),
-    (17, 'NO-Xplode Pre-entreno 30 sv',     'Formula avanzada con cafeína, beta-alanina y creatina.',                 900.00, '',                             25, 'ACT', 4),
-    (18, 'Creatina Monohidratada 300g',     'Creatina pura micronizada, sin sabor. Aumenta fuerza y potencia.',       450.00, 'p6a742cd6ca37e1.69458195.jpg', 59, 'ACT', 5),
-    (19, 'Creatina Monohidratada 500g',     'Formato económico. Creatina de grado farmacéutico.',                     650.00, '',                             45, 'ACT', 5),
-    (20, 'BCAA 2:1:1 Powder 300g',          'Leucina, Isoleucina y Valina en proporción óptima. Sabor limón.',        700.00, '',                             40, 'ACT', 6),
-    (21, 'L-Glutamina 300g',                'Recuperación muscular y sistema inmune. Sin sabor.',                     550.00, 'p6a74127c7fd584.00532928.jpg', 30, 'ACT', 6),
-    (22, 'Multivitamínico Atleta 60 tabs',  'Fórmula completa con vitaminas A, C, D, E, zinc y magnesio.',            380.00, 'p6a741274275a04.96739663.jpg', 55, 'ACT', 7),
-    (23, 'Omega 3 Fish Oil 90 caps',        'EPA y DHA de alta concentración. Antiinflamatorio natural.',             420.00, 'p6a74126bdcc438.41700475.jpg', 40, 'ACT', 7),
-    (24, 'Quemador Lipo-6 Black 60 caps',   'Termogénico de acción rápida para definición muscular.',                 780.00, 'p6a7412642008f6.88826716.png', 20, 'ACT', 4),
-    (25, 'Caseína Micelar Chocolate 4lb',   'Proteína de digestión lenta, ideal para tomar en la noche.',            1300.00, 'p6a74125a1e1df4.53911948.png', 18, 'ACT', 2);
+    (11, 'Whey Protein Gold Standard 5lb',  'Proteína de suero sabor chocolate, 24g de proteína por servicio.',      1200.00, 'p6a74b50ad226e4.44276846.png', 50, 'ACT', 2),
+    (12, 'Whey Protein Isolate 4lb',        'Isolate de alta pureza, bajo en lactosa. Sabor vainilla.',              1500.00, 'p6a74b6a530ff72.47822017.jpg', 30, 'ACT', 2),
+    (13, 'Whey Protein 100% 3lb',           'Mezcla de concentrado e isolate. Sabor fresa.',                          850.00, 'p6a74b67d414e39.57298466.png', 40, 'ACT', 2),
+    (14, 'Proteína Vegana Chocolate 2lb',   'Base de guisante y arroz, libre de lactosa y gluten.',                   950.00, 'p6a74b6471196c0.19504878.png', 20, 'ACT', 3),
+    (15, 'Proteína Vegana Vainilla 2lb',    'Proteína vegetal completa con todos los aminoácidos esenciales.',       950.00, 'p6a74b63d168f12.53209269.jpg', 15, 'ACT', 3),
+    (16, 'C4 Original Pre-entreno 30 sv',   'Energía y enfoque para tu entrenamiento. Sabor sandía.',                 850.00, 'p6a74b4bd5f3b56.26044628.jpg', 35, 'ACT', 4),
+    (17, 'NO-Xplode Pre-entreno 30 sv',     'Formula avanzada con cafeína, beta-alanina y creatina.',                 900.00, 'p6a74b49aae3fb8.36926915.jpg', 25, 'ACT', 4),
+    (18, 'Creatina Monohidratada 300g',     'Creatina pura micronizada, sin sabor. Aumenta fuerza y potencia.',       450.00, 'p6a74b458319c30.72242533.jpg', 59, 'ACT', 5),
+    (19, 'Creatina Monohidratada 1000g',    'Formato más grande. Creatina de grado farmacéutico.',                   1050.00, 'p6a74b4796936d4.28944689.jpg', 45, 'ACT', 5),
+    (20, 'BCAA 2:1:1 Powder 300g',          'Leucina, Isoleucina y Valina en proporción óptima. Sabor limón.',        700.00, 'p6a74b41fcddd06.07885670.jpg', 40, 'ACT', 6),
+    (21, 'L-Glutamina 300g',                'Recuperación muscular y sistema inmune. Sin sabor.',                     550.00, 'p6a74b3fe629602.77012080.jpg', 30, 'ACT', 6),
+    (22, 'Multivitamínico Atleta 60 tabs',  'Fórmula completa con vitaminas A, C, D, E, zinc y magnesio.',            380.00, 'p6a74b609c55a17.98844933.jpg', 55, 'ACT', 7),
+    (23, 'Omega 3 Fish Oil 90 caps',        'EPA y DHA de alta concentración. Antiinflamatorio natural.',             420.00, 'p6a74b58f312327.95196840.jpg', 40, 'ACT', 7),
+    (24, 'Quemador Lipo-6 Black 60 caps',   'Termogénico de acción rápida para definición muscular.',                 780.00, 'p6a74b5b1e52769.07674842.jpg', 20, 'ACT', 4),
+    (25, 'Caseína Micelar Chocolate 4lb',   'Proteína de digestión lenta, ideal para tomar en la noche.',            1300.00, 'p6a74b4fa9a9892.88572906.jpg', 18, 'ACT', 2);
 
--- Destacados (inicio/fin relativos a NOW(): si la fila ya existe se ignora
--- tal cual estaba; si no existe, arranca fresca 30 días desde que se corre).
+UPDATE `products` SET
+    `productName` = 'Creatina Monohidratada 1000g',
+    `productDescription` = 'Formato más grande. Creatina de grado farmacéutico.',
+    `productPrice` = 1050.00,
+    `productImgUrl` = 'p6a74b4796936d4.28944689.jpg'
+WHERE `productId` = 19;
+
+UPDATE `products` SET `productImgUrl` = 'p6a74b50ad226e4.44276846.png' WHERE `productId` = 11 AND `productImgUrl` <> 'p6a74b50ad226e4.44276846.png';
+UPDATE `products` SET `productImgUrl` = 'p6a74b6a530ff72.47822017.jpg' WHERE `productId` = 12 AND `productImgUrl` <> 'p6a74b6a530ff72.47822017.jpg';
+UPDATE `products` SET `productImgUrl` = 'p6a74b67d414e39.57298466.png' WHERE `productId` = 13 AND `productImgUrl` <> 'p6a74b67d414e39.57298466.png';
+UPDATE `products` SET `productImgUrl` = 'p6a74b6471196c0.19504878.png' WHERE `productId` = 14 AND `productImgUrl` <> 'p6a74b6471196c0.19504878.png';
+UPDATE `products` SET `productImgUrl` = 'p6a74b63d168f12.53209269.jpg' WHERE `productId` = 15 AND `productImgUrl` <> 'p6a74b63d168f12.53209269.jpg';
+UPDATE `products` SET `productImgUrl` = 'p6a74b4bd5f3b56.26044628.jpg' WHERE `productId` = 16 AND `productImgUrl` <> 'p6a74b4bd5f3b56.26044628.jpg';
+UPDATE `products` SET `productImgUrl` = 'p6a74b49aae3fb8.36926915.jpg' WHERE `productId` = 17 AND `productImgUrl` <> 'p6a74b49aae3fb8.36926915.jpg';
+UPDATE `products` SET `productImgUrl` = 'p6a74b458319c30.72242533.jpg' WHERE `productId` = 18 AND `productImgUrl` <> 'p6a74b458319c30.72242533.jpg';
+UPDATE `products` SET `productImgUrl` = 'p6a74b41fcddd06.07885670.jpg' WHERE `productId` = 20 AND `productImgUrl` <> 'p6a74b41fcddd06.07885670.jpg';
+UPDATE `products` SET `productImgUrl` = 'p6a74b3fe629602.77012080.jpg' WHERE `productId` = 21 AND `productImgUrl` <> 'p6a74b3fe629602.77012080.jpg';
+UPDATE `products` SET `productImgUrl` = 'p6a74b609c55a17.98844933.jpg' WHERE `productId` = 22 AND `productImgUrl` <> 'p6a74b609c55a17.98844933.jpg';
+UPDATE `products` SET `productImgUrl` = 'p6a74b58f312327.95196840.jpg' WHERE `productId` = 23 AND `productImgUrl` <> 'p6a74b58f312327.95196840.jpg';
+UPDATE `products` SET `productImgUrl` = 'p6a74b5b1e52769.07674842.jpg' WHERE `productId` = 24 AND `productImgUrl` <> 'p6a74b5b1e52769.07674842.jpg';
+UPDATE `products` SET `productImgUrl` = 'p6a74b4fa9a9892.88572906.jpg' WHERE `productId` = 25 AND `productImgUrl` <> 'p6a74b4fa9a9892.88572906.jpg';
+
+-- destacados
 INSERT IGNORE INTO `highlights` (`highlightId`, `productId`, `highlightStart`, `highlightEnd`) VALUES
     (3,  11, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)),
     (4,  12, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)),
@@ -320,7 +298,7 @@ INSERT IGNORE INTO `highlights` (`highlightId`, `productId`, `highlightStart`, `
     (10, 19, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)),
     (11, 23, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY));
 
--- Ofertas del día (mismo criterio de fechas relativas que highlights)
+-- ofertas
 INSERT IGNORE INTO `sales` (`saleId`, `productId`, `salePrice`, `saleStart`, `saleEnd`) VALUES
     (4,  15, 760.00, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY)),
     (5,  16, 680.00, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY)),
@@ -331,7 +309,6 @@ INSERT IGNORE INTO `sales` (`saleId`, `productId`, `salePrice`, `saleStart`, `sa
     (10, 21, 440.00, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY)),
     (11, 22, 304.00, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY));
 
--- Funciones de menú y controladores (acceso RBAC por rol) — los 6 módulos
 INSERT IGNORE INTO `funciones` (`fncod`, `fndsc`, `fnest`, `fntyp`) VALUES
     ('Menu_2FA',                             'Menu_2FA',                 'ACT', 'MNU'),
     ('Menu_AdminProductos',                  'Menu_AdminProductos',      'ACT', 'MNU'),
