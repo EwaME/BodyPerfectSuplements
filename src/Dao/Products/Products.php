@@ -7,7 +7,7 @@ class Products extends \Dao\Table
     {
         $sql = "SELECT p.*, cat.categoryName,
                     COALESCE(s.salePrice, 0) as salePrice,
-                    CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END as hasSale
+                    CASE WHEN s.saleId IS NOT NULL THEN 1 ELSE 0 END as hasSale
                 FROM products p
                 LEFT JOIN categories cat ON p.categoryId = cat.categoryId
                 INNER JOIN highlights h ON p.productId = h.productId
@@ -15,7 +15,7 @@ class Products extends \Dao\Table
                 LEFT JOIN sales s ON p.productId = s.productId
                     AND NOW() BETWEEN s.saleStart AND s.saleEnd
                 WHERE p.productStatus = 'ACT'
-                ORDER BY h.id DESC;";
+                ORDER BY h.highlightId DESC;";
         return self::obtenerRegistros($sql, []);
     }
 
@@ -27,7 +27,7 @@ class Products extends \Dao\Table
                 INNER JOIN sales s ON p.productId = s.productId
                     AND NOW() BETWEEN s.saleStart AND s.saleEnd
                 WHERE p.productStatus = 'ACT'
-                ORDER BY s.id DESC;";
+                ORDER BY s.saleId DESC;";
         return self::obtenerRegistros($sql, []);
     }
 
@@ -67,7 +67,7 @@ class Products extends \Dao\Table
 
         $sql = "SELECT p.*, cat.categoryName,
                     COALESCE(s.salePrice, 0) as salePrice,
-                    CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END as hasSale
+                    CASE WHEN s.saleId IS NOT NULL THEN 1 ELSE 0 END as hasSale
                 FROM products p
                 LEFT JOIN categories cat ON p.categoryId = cat.categoryId
                 LEFT JOIN sales s ON p.productId = s.productId
@@ -118,7 +118,7 @@ class Products extends \Dao\Table
     {
         $sql = "SELECT p.*, cat.categoryName,
                     COALESCE(s.salePrice, 0) as salePrice,
-                    CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END as hasSale
+                    CASE WHEN s.saleId IS NOT NULL THEN 1 ELSE 0 END as hasSale
                 FROM products p
                 LEFT JOIN categories cat ON p.categoryId = cat.categoryId
                 LEFT JOIN sales s ON p.productId = s.productId
@@ -195,7 +195,7 @@ class Products extends \Dao\Table
         $sql = "SELECT p.productId, p.productName, p.productPrice, p.productImgUrl,
                     cat.categoryName,
                     COALESCE(s.salePrice, 0) as salePrice,
-                    CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END as hasSale
+                    CASE WHEN s.saleId IS NOT NULL THEN 1 ELSE 0 END as hasSale
                 FROM products p
                 LEFT JOIN categories cat ON p.categoryId = cat.categoryId
                 LEFT JOIN sales s ON p.productId = s.productId
@@ -218,13 +218,51 @@ class Products extends \Dao\Table
         return self::obtenerRegistros($sql, []);
     }
 
-    public static function getListaAdmin()
+    public static function getListaAdmin($search = '', $status = '', $page = 1, $perPage = 15)
     {
+        $where  = "WHERE 1=1";
+        $params = [];
+
+        if ($search !== '') {
+            $where .= " AND (p.productName LIKE :search OR p.productDescription LIKE :search2)";
+            $params['search']  = '%' . $search . '%';
+            $params['search2'] = '%' . $search . '%';
+        }
+        if (in_array($status, ['ACT','INA','AGO'])) {
+            $where .= " AND p.productStatus = :status";
+            $params['status'] = $status;
+        }
+
+        $offset = (int)(($page - 1) * $perPage);
+        $limit  = (int)$perPage;
+
         $sql = "SELECT p.*, cat.categoryName
                 FROM products p
                 LEFT JOIN categories cat ON p.categoryId = cat.categoryId
-                ORDER BY p.productId DESC;";
-        return self::obtenerRegistros($sql, []);
+                {$where}
+                ORDER BY p.productId DESC
+                LIMIT {$offset}, {$limit};";
+        return self::obtenerRegistros($sql, $params);
+    }
+
+    public static function countListaAdmin($search = '', $status = '')
+    {
+        $where  = "WHERE 1=1";
+        $params = [];
+
+        if ($search !== '') {
+            $where .= " AND (p.productName LIKE :search OR p.productDescription LIKE :search2)";
+            $params['search']  = '%' . $search . '%';
+            $params['search2'] = '%' . $search . '%';
+        }
+        if (in_array($status, ['ACT','INA','AGO'])) {
+            $where .= " AND p.productStatus = :status";
+            $params['status'] = $status;
+        }
+
+        $sql    = "SELECT COUNT(*) as total FROM products p {$where};";
+        $result = self::obtenerUnRegistro($sql, $params);
+        return (int)($result['total'] ?? 0);
     }
 
     private function __construct() {}

@@ -34,8 +34,9 @@
         {{endfor PUBLIC_NAVIGATION}}
         {{endifnot login}}
         {{if login}}
-        <li><a href="index.php?page=Products_Products"><i class="fas fa-store"></i>&nbsp;Catálogo</a></li>
-        <li><a href="index.php?page=Products_Admin"><i class="fas fa-boxes"></i>&nbsp;Admin Productos</a></li>
+        {{foreach NAVIGATION}}
+            <li><a href="{{nav_url}}">{{nav_label}}</a></li>
+        {{endfor NAVIGATION}}
         <li><a href="index.php?page=Sec_Logout"><i class="fas fa-sign-out-alt"></i>&nbsp;Cerrar Sesión</a></li>
         {{endif login}}
       </ul>

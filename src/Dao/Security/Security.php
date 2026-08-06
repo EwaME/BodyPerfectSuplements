@@ -47,7 +47,7 @@ class Security extends \Dao\Table
         return self::obtenerRegistros($sqlstr, array());
     }
 
-    static public function newUsuario($email, $password)
+    static public function newUsuario($email, $password, $nombre = "")
     {
         if (!\Utilities\Validators::IsValidEmail($email)) {
             throw new Exception("Correo no es válido");
@@ -57,7 +57,6 @@ class Security extends \Dao\Table
         }
 
         $newUser = self::_usuarioStruct();
-        //Tratamiento de la Contraseña
         $hashedPassword = self::_hashPassword($password);
 
         unset($newUser["usercod"]);
@@ -65,8 +64,8 @@ class Security extends \Dao\Table
         unset($newUser["userpswdchg"]);
 
         $newUser["useremail"] = $email;
-        $newUser["username"] = "John Doe";
-        $newUser["userpswd"] = $hashedPassword;
+        $newUser["username"]  = $nombre !== "" ? $nombre : $email;
+        $newUser["userpswd"]  = $hashedPassword;
         $newUser["userpswdest"] = Estados::ACTIVO;
         $newUser["userpswdexp"] = date('Y-m-d', time() + 7776000);  //(3*30*24*60*60) (m d h mi s)
         $newUser["userest"] = Estados::ACTIVO;
@@ -299,13 +298,22 @@ class Security extends \Dao\Table
             array("fncod" => $fncod, "rolescod" => $rolescod)
         );
     }
+    static public function asignarRol($usercod, $rolescod)
+    {
+        $sqlins = "INSERT IGNORE INTO `roles_usuarios`
+            (`usercod`, `rolescod`, `roleuserest`, `roleuserfch`)
+            VALUES (:usercod, :rolescod, 'ACT', NOW());";
+        return self::executeNonQuery($sqlins, array(
+            "usercod"  => $usercod,
+            "rolescod" => $rolescod,
+        ));
+    }
+
     static public function getUnAssignedFeatures($rolescod)
     {
-        
     }
     static public function getUnAssignedRoles($userCod)
     {
-
     }
     private function __construct()
     {

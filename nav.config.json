@@ -33,6 +33,11 @@
       "nav_label": "<i class=\"fas fa-shopping-cart\"></i>&nbsp;Carrito"
     },
     {
+      "id": "Menu_Dashboard",
+      "nav_url": "index.php?page=Dashboard_Dashboard",
+      "nav_label": "<i class=\"fas fa-chart-line\"></i>&nbsp;Dashboard"
+    },
+    {
       "id": "Menu_AdminProductos",
       "nav_url": "index.php?page=Products_Admin",
       "nav_label": "<i class=\"fas fa-boxes\"></i>&nbsp;Admin Productos"

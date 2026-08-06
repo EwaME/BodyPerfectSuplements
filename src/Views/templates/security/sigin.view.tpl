@@ -7,6 +7,15 @@
     </section>
     <section class="depth-1 py-5 row col-12 bp-auth-body">
       <div class="row">
+        <label class="col-12 col-m-4 flex align-center" for="txtNombre">Nombre completo</label>
+        <div class="col-12 col-m-8">
+          <input class="width-full" type="text" id="txtNombre" name="txtNombre" value="{{txtNombre}}" required maxlength="80" />
+        </div>
+        {{if errorNombre}}
+        <div class="error col-12 py-2 col-m-8 offset-m-4">{{errorNombre}}</div>
+        {{endif errorNombre}}
+      </div>
+      <div class="row">
         <label class="col-12 col-m-4 flex align-center" for="txtEmail">Correo Electrónico</label>
         <div class="col-12 col-m-8">
           <input class="width-full" type="email" id="txtEmail" name="txtEmail" value="{{txtEmail}}" />
