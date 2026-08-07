@@ -23,7 +23,6 @@
     </a>
   </div>
 
-  <!-- Tarjetas de resumen -->
   <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:2rem;">
     <div class="bp-stat-card">
       <div class="bp-stat-icon" style="color:#10b981;"><i class="fas fa-money-bill-wave"></i></div>
@@ -47,7 +46,6 @@
     </div>
   </div>
 
-  <!-- Gráficas -->
   <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-bottom:2rem;">
 
     <div class="bp-chart-card">
@@ -72,7 +70,6 @@
 
   </div>
 
-  <!-- Alertas de stock bajo -->
   {{if hayStockBajo}}
   <div class="bp-stock-alert">
     <h3><i class="fas fa-exclamation-triangle"></i>&nbsp;Alerta de stock bajo (≤ 10 unidades)</h3>
@@ -192,10 +189,10 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 (function() {
-  var labelsVentas  = {{jsonLabelsVentas}};
-  var dataIngresos  = {{jsonDataIngresos}};
-  var labelsTop     = {{jsonLabelsTop}};
-  var dataTop       = {{jsonDataTop}};
+  var labelsVentas = {{jsonLabelsVentas}};
+  var dataIngresos = {{jsonDataIngresos}};
+  var labelsTop = {{jsonLabelsTop}};
+  var dataTop = {{jsonDataTop}};
 
   if (document.getElementById('chartVentas')) {
     new Chart(document.getElementById('chartVentas'), {

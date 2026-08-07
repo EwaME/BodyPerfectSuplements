@@ -3,13 +3,8 @@
 namespace Utilities;
 class DotEnv
 {
-    /**
-     * The directory where the .env file can be located.
-     *
-     * @var string
-     */
-    protected $path;
 
+    protected $path;
 
     public function __construct(string $path)
     {

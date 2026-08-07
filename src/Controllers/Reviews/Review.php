@@ -16,9 +16,9 @@ class Review extends PublicController
             \Utilities\Site::redirectTo("index.php?page=Products_Products");
         }
 
-        $usercod      = \Utilities\Security::getUserId();
+        $usercod = \Utilities\Security::getUserId();
         $calificacion = isset($_POST['calificacion']) ? (int)$_POST['calificacion'] : 0;
-        $comentario   = trim($_POST['comentario'] ?? '');
+        $comentario = trim($_POST['comentario'] ?? '');
 
         $redirect = "index.php?page=Products_Detail&id={$productId}";
 

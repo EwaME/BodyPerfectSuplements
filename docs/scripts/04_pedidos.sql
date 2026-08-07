@@ -1,13 +1,12 @@
--- Módulo E: Pasarela de pagos — pedidos, detalle y transacciones
--- Depende de: usuario (01_security.sql), products (02_catalogo.sql)
+
 
 CREATE TABLE
     `pedidos` (
-        `id`      int(11)        NOT NULL AUTO_INCREMENT,
-        `usercod` bigint(10)     NOT NULL,
-        `total`   decimal(12, 2) NOT NULL,
-        `estado`  char(3)        NOT NULL DEFAULT 'PND' COMMENT 'PND=Pendiente, APR=Aprobado, RCH=Rechazado, CAN=Cancelado',
-        `fecha`   datetime       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `usercod` bigint(10) NOT NULL,
+        `total` decimal(12, 2) NOT NULL,
+        `estado` char(3) NOT NULL DEFAULT 'PND' COMMENT 'PND=Pendiente, APR=Aprobado, RCH=Rechazado, CAN=Cancelado',
+        `fecha` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (`id`),
         KEY `pedidos_user_idx` (`usercod`),
         KEY `pedidos_estado_idx` (`estado`),
@@ -18,10 +17,10 @@ CREATE TABLE
 
 CREATE TABLE
     `pedido_detalle` (
-        `id`             int(11)        NOT NULL AUTO_INCREMENT,
-        `pedidoId`       int(11)        NOT NULL,
-        `productId`      int(11)        NOT NULL,
-        `cantidad`       int(11)        NOT NULL,
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `pedidoId` int(11) NOT NULL,
+        `productId` int(11) NOT NULL,
+        `cantidad` int(11) NOT NULL,
         `precioUnitario` decimal(12, 2) NOT NULL,
         PRIMARY KEY (`id`),
         KEY `pedido_detalle_pedido_idx` (`pedidoId`),
@@ -36,13 +35,13 @@ CREATE TABLE
 
 CREATE TABLE
     `transacciones` (
-        `id`                  int(11)        NOT NULL AUTO_INCREMENT,
-        `pedidoId`            int(11)        NOT NULL,
-        `metodoPago`          varchar(20)    NOT NULL DEFAULT 'PAYPAL',
-        `referenciaPasarela`  varchar(255)   DEFAULT NULL COMMENT 'Order ID de PayPal',
-        `estado`              char(3)        NOT NULL DEFAULT 'PND' COMMENT 'PND=Pendiente, APR=Aprobado, RCH=Rechazado, CAN=Cancelado',
-        `monto`               decimal(12, 2) NOT NULL,
-        `fecha`               datetime       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `pedidoId` int(11) NOT NULL,
+        `metodoPago` varchar(20) NOT NULL DEFAULT 'PAYPAL',
+        `referenciaPasarela` varchar(255) DEFAULT NULL COMMENT 'Order ID de PayPal',
+        `estado` char(3) NOT NULL DEFAULT 'PND' COMMENT 'PND=Pendiente, APR=Aprobado, RCH=Rechazado, CAN=Cancelado',
+        `monto` decimal(12, 2) NOT NULL,
+        `fecha` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (`id`),
         KEY `transacciones_pedido_idx` (`pedidoId`),
         KEY `transacciones_ref_idx` (`referenciaPasarela`),

@@ -9,23 +9,23 @@ class Create extends PrivateController
     {
         $errors = [];
         $form = [
-            'productName'        => '',
+            'productName' => '',
             'productDescription' => '',
-            'productPrice'       => '',
-            'productImgUrl'      => '',
-            'productStock'       => 0,
-            'productStatus'      => 'ACT',
-            'categoryId'         => null,
+            'productPrice' => '',
+            'productImgUrl' => '',
+            'productStock' => 0,
+            'productStatus' => 'ACT',
+            'categoryId' => null,
         ];
 
         if ($this->isPostBack()) {
-            $form['productName']        = trim($_POST['productName'] ?? '');
+            $form['productName'] = trim($_POST['productName'] ?? '');
             $form['productDescription'] = trim($_POST['productDescription'] ?? '');
-            $form['productPrice']       = trim($_POST['productPrice'] ?? '');
-            $form['productStock']       = (int)($_POST['productStock'] ?? 0);
-            $form['productStatus']      = in_array($_POST['productStatus'] ?? '', ['ACT', 'INA']) ? $_POST['productStatus'] : 'ACT';
-            $form['categoryId']         = isset($_POST['categoryId']) && $_POST['categoryId'] !== '' ? (int)$_POST['categoryId'] : null;
-            $form['productImgUrl']      = $this->uploadImage($errors);
+            $form['productPrice'] = trim($_POST['productPrice'] ?? '');
+            $form['productStock'] = (int)($_POST['productStock'] ?? 0);
+            $form['productStatus'] = in_array($_POST['productStatus'] ?? '', ['ACT', 'INA']) ? $_POST['productStatus'] : 'ACT';
+            $form['categoryId'] = isset($_POST['categoryId']) && $_POST['categoryId'] !== '' ? (int)$_POST['categoryId'] : null;
+            $form['productImgUrl'] = $this->uploadImage($errors);
 
             if ($form['productName'] === '') {
                 $errors['errorName'] = 'Nombre requerido.';
@@ -48,10 +48,10 @@ class Create extends PrivateController
 
         \Views\Renderer::render("products/form", array_merge($form, $errors, [
             'categorias' => $categorias,
-            'formTitle'  => 'Nuevo Producto',
+            'formTitle' => 'Nuevo Producto',
             'formAction' => 'index.php?page=Products_Create',
-            'isEdit'     => 0,
-            'isACT'      => 1,
+            'isEdit' => 0,
+            'isACT' => 1,
         ]));
     }
 
@@ -66,7 +66,7 @@ class Create extends PrivateController
             return '';
         }
         $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'];
-        $mime    = mime_content_type($file['tmp_name']);
+        $mime = mime_content_type($file['tmp_name']);
         if (!isset($allowed[$mime])) {
             $errors['errorImg'] = 'Solo se permiten imágenes JPG, PNG, WEBP o GIF.';
             return '';
@@ -76,7 +76,7 @@ class Create extends PrivateController
             return '';
         }
         $filename = uniqid('p', true) . '.' . $allowed[$mime];
-        $dest     = __DIR__ . '/../../../public/imgs/products/' . $filename;
+        $dest = __DIR__ . '/../../../public/imgs/products/' . $filename;
         if (!move_uploaded_file($file['tmp_name'], $dest)) {
             $errors['errorImg'] = 'No se pudo guardar la imagen.';
             return '';

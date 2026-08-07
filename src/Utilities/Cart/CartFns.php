@@ -1,18 +1,18 @@
-<?php 
+<?php
 namespace Utilities\Cart;
 
 class CartFns {
 
     public static function getAuthTimeDelta()
     {
-        return 21600; // 6 * 60 * 60; // horas * minutos * segundo
-        // No puede ser mayor a 34 días
+        return 21600;
+
     }
 
     public static function getUnAuthTimeDelta()
     {
-        return 600 ;// 10 * 60; //h , m, s
-        // No puede ser mayor a 34 días
+        return 600 ;
+
     }
 
     public static function getAnonId()
@@ -37,12 +37,12 @@ class CartFns {
 
     public static function getIsvRate()
     {
-        return 0.15; // ISV Honduras 15%
+        return 0.15;
     }
 
     public static function getEnvioSimulado()
     {
-        return 50.00; // Envío simulado fijo
+        return 50.00;
     }
 
     public static function formatMoney($amount)

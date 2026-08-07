@@ -89,7 +89,7 @@
 document.getElementById('productImg').addEventListener('change', function () {
   var file = this.files[0];
   var wrap = document.getElementById('bp-img-preview-wrap');
-  var img  = document.getElementById('bp-img-preview');
+  var img = document.getElementById('bp-img-preview');
   var name = document.getElementById('bp-img-preview-name');
   if (!file) return;
   img.src = URL.createObjectURL(file);

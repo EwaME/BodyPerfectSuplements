@@ -29,9 +29,9 @@ class Dashboard extends PrivateController
         }
 
         \Views\Renderer::render("dashboard/dashboard", [
-            'totalPedidos' => $resumen['totalPedidos']   ?? 0,
+            'totalPedidos' => $resumen['totalPedidos'] ?? 0,
             'totalIngresos' => number_format((float)($resumen['totalIngresos'] ?? 0), 2),
-            'totalClientes' => $resumen['totalClientes']  ?? 0,
+            'totalClientes' => $resumen['totalClientes'] ?? 0,
             'totalProductos' => $resumen['totalProductos'] ?? 0,
             'stockBajo' => $stockBajo,
             'hayStockBajo' => count($stockBajo) > 0 ? 1 : 0,

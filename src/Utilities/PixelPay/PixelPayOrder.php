@@ -14,10 +14,10 @@ class PixelPayOrder{
         "_cancel" => "",
         "_complete" => "",
         "_order_id" => "",
-        "_order_date" => "", // dd-mm-aa hh:mm
-        "_order_content" => "", //base64
-        "_order_extras" => "", //base64
-        "_currency"=>"HNL", // HNL, USD
+        "_order_date" => "",
+        "_order_content" => "",
+        "_order_extras" => "",
+        "_currency"=>"HNL",
         "_tax_amount"=> 0,
         "_shipping_amount" => 0,
         "_amount" => 0,
@@ -38,7 +38,7 @@ class PixelPayOrder{
         $this->_apirurl = (Context::getContextByKey("PIXELPAY_ENV") === "PRD") ?
             Context::getContextByKey("PIXELPAY_URL"):
             "https://pixelpay.app";
-        
+
     }
 }
 

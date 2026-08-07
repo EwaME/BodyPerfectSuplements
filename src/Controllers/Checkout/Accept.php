@@ -10,9 +10,9 @@ class Accept extends PublicController
     {
         $dataview = array("pedido" => false, "detalle" => array());
 
-        $token         = $_GET["token"]        ?? "";
-        $session_token = $_SESSION["orderid"]  ?? "";
-        $pedidoId      = $_SESSION["pedidoId"] ?? 0;
+        $token = $_GET["token"] ?? "";
+        $session_token = $_SESSION["orderid"] ?? "";
+        $pedidoId = $_SESSION["pedidoId"] ?? 0;
 
         if ($token !== "" && $token == $session_token && $pedidoId) {
             $pedido = \Dao\Checkout\Pedidos::getPedido($pedidoId);

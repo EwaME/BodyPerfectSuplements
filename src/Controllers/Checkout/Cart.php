@@ -78,10 +78,6 @@ class Cart extends PublicController
         \Views\Renderer::render("checkout/cart", $carrito);
     }
 
-    /**
-     * "Guardar para más tarde": la lista vive en sesión (no en las tablas
-     * carretilla/carretillaanon, que no tienen campo de estado por diseño).
-     */
     private function getGuardados(): array
     {
         if (!isset($_SESSION["bp_guardados"]) || !is_array($_SESSION["bp_guardados"])) {

@@ -42,13 +42,13 @@ class Products extends \Dao\Table
                          OR p.categoryId IN (
                              SELECT categoryId FROM categories WHERE parentCategoryId = :categoryId2
                          ))";
-            $params['categoryId']  = $categoryId;
+            $params['categoryId'] = $categoryId;
             $params['categoryId2'] = $categoryId;
         }
 
         if ($search !== '') {
             $where .= " AND (p.productName LIKE :search OR p.productDescription LIKE :search2)";
-            $params['search']  = '%' . $search . '%';
+            $params['search'] = '%' . $search . '%';
             $params['search2'] = '%' . $search . '%';
         }
 
@@ -62,9 +62,8 @@ class Products extends \Dao\Table
             $params['maxPrice'] = $maxPrice;
         }
 
-        // LIMIT/OFFSET se interpolan directamente porque son enteros sanitizados — no hay riesgo de inyección
         $offset = (int)(($page - 1) * $itemsPerPage);
-        $limit  = (int)$itemsPerPage;
+        $limit = (int)$itemsPerPage;
 
         $sql = "SELECT p.*, cat.categoryName,
                     COALESCE(s.salePrice, 0) as salePrice,
@@ -82,7 +81,7 @@ class Products extends \Dao\Table
 
     public static function countListaProductos($categoryId = null, $search = '', $minPrice = null, $maxPrice = null)
     {
-        $where  = "WHERE p.productStatus IN ('ACT', 'AGO')";
+        $where = "WHERE p.productStatus IN ('ACT', 'AGO')";
         $params = [];
 
         if ($categoryId) {
@@ -90,13 +89,13 @@ class Products extends \Dao\Table
                          OR p.categoryId IN (
                              SELECT categoryId FROM categories WHERE parentCategoryId = :categoryId2
                          ))";
-            $params['categoryId']  = $categoryId;
+            $params['categoryId'] = $categoryId;
             $params['categoryId2'] = $categoryId;
         }
 
         if ($search !== '') {
             $where .= " AND (p.productName LIKE :search OR p.productDescription LIKE :search2)";
-            $params['search']  = '%' . $search . '%';
+            $params['search'] = '%' . $search . '%';
             $params['search2'] = '%' . $search . '%';
         }
 
@@ -110,7 +109,7 @@ class Products extends \Dao\Table
             $params['maxPrice'] = $maxPrice;
         }
 
-        $sql    = "SELECT COUNT(*) as total FROM products p {$where};";
+        $sql = "SELECT COUNT(*) as total FROM products p {$where};";
         $result = self::obtenerUnRegistro($sql, $params);
         return $result ? (int)$result['total'] : 0;
     }
@@ -138,13 +137,13 @@ class Products extends \Dao\Table
                     (:productName, :productDescription, :productPrice,
                      :productImgUrl, :productStock, :productStatus, :categoryId);";
         return self::executeNonQuery($sql, [
-            'productName'        => $data['productName'],
+            'productName' => $data['productName'],
             'productDescription' => $data['productDescription'],
-            'productPrice'       => $data['productPrice'],
-            'productImgUrl'      => $data['productImgUrl'],
-            'productStock'       => $data['productStock'],
-            'productStatus'      => $data['productStatus'],
-            'categoryId'         => $data['categoryId'],
+            'productPrice' => $data['productPrice'],
+            'productImgUrl' => $data['productImgUrl'],
+            'productStock' => $data['productStock'],
+            'productStatus' => $data['productStatus'],
+            'categoryId' => $data['categoryId'],
         ]);
     }
 
@@ -160,14 +159,14 @@ class Products extends \Dao\Table
                     categoryId         = :categoryId
                 WHERE productId = :productId;";
         return self::executeNonQuery($sql, [
-            'productName'        => $data['productName'],
+            'productName' => $data['productName'],
             'productDescription' => $data['productDescription'],
-            'productPrice'       => $data['productPrice'],
-            'productImgUrl'      => $data['productImgUrl'],
-            'productStock'       => $data['productStock'],
-            'productStatus'      => $data['productStatus'],
-            'categoryId'         => $data['categoryId'],
-            'productId'          => $data['productId'],
+            'productPrice' => $data['productPrice'],
+            'productImgUrl' => $data['productImgUrl'],
+            'productStock' => $data['productStock'],
+            'productStatus' => $data['productStatus'],
+            'categoryId' => $data['categoryId'],
+            'productId' => $data['productId'],
         ]);
     }
 
@@ -185,7 +184,7 @@ class Products extends \Dao\Table
 
     public static function getMaxPrice()
     {
-        $sql    = "SELECT CEIL(MAX(productPrice) / 100) * 100 as maxPrice FROM products WHERE productStatus IN ('ACT','AGO');";
+        $sql = "SELECT CEIL(MAX(productPrice) / 100) * 100 as maxPrice FROM products WHERE productStatus IN ('ACT','AGO');";
         $result = self::obtenerUnRegistro($sql, []);
         return $result && $result['maxPrice'] ? (int)$result['maxPrice'] : 5000;
     }
@@ -206,7 +205,7 @@ class Products extends \Dao\Table
                 ORDER BY p.productName ASC
                 LIMIT {$limit};";
         return self::obtenerRegistros($sql, [
-            'search'  => '%' . $search . '%',
+            'search' => '%' . $search . '%',
             'search2' => '%' . $search . '%',
         ]);
     }
@@ -221,12 +220,12 @@ class Products extends \Dao\Table
 
     public static function getListaAdmin($search = '', $status = '', $page = 1, $perPage = 15)
     {
-        $where  = "WHERE 1=1";
+        $where = "WHERE 1=1";
         $params = [];
 
         if ($search !== '') {
             $where .= " AND (p.productName LIKE :search OR p.productDescription LIKE :search2)";
-            $params['search']  = '%' . $search . '%';
+            $params['search'] = '%' . $search . '%';
             $params['search2'] = '%' . $search . '%';
         }
         if (in_array($status, ['ACT','INA','AGO'])) {
@@ -235,7 +234,7 @@ class Products extends \Dao\Table
         }
 
         $offset = (int)(($page - 1) * $perPage);
-        $limit  = (int)$perPage;
+        $limit = (int)$perPage;
 
         $sql = "SELECT p.*, cat.categoryName
                 FROM products p
@@ -248,12 +247,12 @@ class Products extends \Dao\Table
 
     public static function countListaAdmin($search = '', $status = '')
     {
-        $where  = "WHERE 1=1";
+        $where = "WHERE 1=1";
         $params = [];
 
         if ($search !== '') {
             $where .= " AND (p.productName LIKE :search OR p.productDescription LIKE :search2)";
-            $params['search']  = '%' . $search . '%';
+            $params['search'] = '%' . $search . '%';
             $params['search2'] = '%' . $search . '%';
         }
         if (in_array($status, ['ACT','INA','AGO'])) {
@@ -261,11 +260,11 @@ class Products extends \Dao\Table
             $params['status'] = $status;
         }
 
-        $sql    = "SELECT COUNT(*) as total FROM products p {$where};";
+        $sql = "SELECT COUNT(*) as total FROM products p {$where};";
         $result = self::obtenerUnRegistro($sql, $params);
         return (int)($result['total'] ?? 0);
     }
 
     private function __construct() {}
-    private function __clone()    {}
+    private function __clone() {}
 }

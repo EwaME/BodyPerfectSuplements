@@ -9,7 +9,7 @@ abstract class Enum
     const NONE = null;
     private function __construct()
     {
-        throw new NotSupportedException(); // 
+        throw new NotSupportedException();
     }
     private function __clone()
     {

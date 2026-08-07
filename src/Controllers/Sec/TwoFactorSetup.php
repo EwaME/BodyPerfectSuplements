@@ -1,11 +1,6 @@
 <?php
 namespace Controllers\Sec;
 
-/**
- * Pantalla privada (solo rol ADM, ver seeds de funciones/funciones_roles)
- * para activar o desactivar el segundo factor (TOTP) de la propia cuenta.
- * No se le pide 2FA al cliente regular — es exclusivo del backoffice.
- */
 class TwoFactorSetup extends \Controllers\PrivateController
 {
     public function run() :void

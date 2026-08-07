@@ -13,7 +13,6 @@
   </div>
   {{endif ok}}
 
-  <!-- Barra de búsqueda y filtros -->
   <form method="GET" action="index.php" id="admin-filter-form" class="bp-admin-filter-bar">
     <input type="hidden" name="page" value="Products_Admin" />
 
@@ -104,7 +103,6 @@
     </table>
   </div>
 
-  <!-- Paginación -->
   <div class="bp-pagination" style="margin-top:1.25rem;">
     {{if hasPrev}}
     <a href="index.php?page=Products_Admin&p={{prevPage}}&q={{search}}&status={{filterStatus}}" class="bp-page-btn">

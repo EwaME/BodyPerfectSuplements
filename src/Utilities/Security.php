@@ -6,11 +6,11 @@ use Dao\Security\Security as DaoSecurity;
 class Security {
     private function __construct()
     {
-        
+
     }
     private function __clone()
     {
-        
+
     }
     public static function logout()
     {
@@ -26,11 +26,7 @@ class Security {
             "lastActivity" => time()
         );
     }
-    /**
-     * Ademas de indicar si hay sesion activa, aplica el timeout por
-     * inactividad (SESSION_TIMEOUT_MINUTES): si la ultima actividad
-     * registrada excede ese limite, cierra la sesion automaticamente.
-     */
+
     public static function isLogged():bool
     {
         if (!isset($_SESSION["login"]) || !$_SESSION["login"]["isLogged"]) {
@@ -88,11 +84,6 @@ class Security {
         return DaoSecurity::isUsuarioInRol($userId, $rol);
     }
 
-    /**
-     * Estado intermedio de login cuando falta el segundo factor: la
-     * contraseña ya se validó pero \Utilities\Security::login() todavía
-     * NO se ha llamado, así que no cuenta como sesión autenticada.
-     */
     public static function setPendingTwoFactorUser($userId)
     {
         $_SESSION["pending2fa"] = array("userId" => $userId);
@@ -106,10 +97,6 @@ class Security {
         unset($_SESSION["pending2fa"]);
     }
 
-    /**
-     * Secreto TOTP generado pero aún no confirmado por el usuario durante
-     * el enrolamiento (Controllers\Sec\TwoFactorSetup).
-     */
     public static function setPendingTwoFactorSecret($secret)
     {
         $_SESSION["pending2faSecret"] = $secret;

@@ -2,24 +2,10 @@
 namespace Dao\Security;
 
 if (version_compare(phpversion(), '7.4.0', '<')) {
-        define('PASSWORD_ALGORITHM', 1);  //BCRYPT
+        define('PASSWORD_ALGORITHM', 1);
 } else {
-    define('PASSWORD_ALGORITHM', '2y');  //BCRYPT
+    define('PASSWORD_ALGORITHM', '2y');
 }
-/*
-usercod     bigint(10) AI PK
-useremail   varchar(80)
-username    varchar(80)
-userpswd    varchar(128)
-userfching  datetime
-userpswdest char(3)
-userpswdexp datetime
-userest     char(3)
-useractcod  varchar(128)
-userpswdchg varchar(128)
-usertipo    char(3)
-
- */
 
 use Exception;
 
@@ -31,7 +17,7 @@ class Security extends \Dao\Table
         if ($filter == "" && $page == -1 && $items == 0) {
             $sqlstr = "SELECT * FROM usuario;";
         } else {
-            //TODO: Terminar consultas FACET
+
             if ($page = -1 and $items = 0) {
                 $sqlstr = sprintf("SELECT * FROM usuarios %s;", $filter);
             } else {
@@ -64,10 +50,10 @@ class Security extends \Dao\Table
         unset($newUser["userpswdchg"]);
 
         $newUser["useremail"] = $email;
-        $newUser["username"]  = $nombre !== "" ? $nombre : $email;
-        $newUser["userpswd"]  = $hashedPassword;
+        $newUser["username"] = $nombre !== "" ? $nombre : $email;
+        $newUser["userpswd"] = $hashedPassword;
         $newUser["userpswdest"] = Estados::ACTIVO;
-        $newUser["userpswdexp"] = date('Y-m-d', time() + 7776000);  //(3*30*24*60*60) (m d h mi s)
+        $newUser["userpswdexp"] = date('Y-m-d', time() + 7776000);
         $newUser["userest"] = Estados::ACTIVO;
         $newUser["useractcod"] = hash("sha256", $email.time());
         $newUser["usertipo"] = UsuarioTipo::PUBLICO;
@@ -100,11 +86,6 @@ class Security extends \Dao\Table
         return self::obtenerUnRegistro($sqlstr, $params);
     }
 
-    /**
-     * Inserta un registro de auditoría en bitacora. Se usa para login exitoso,
-     * intentos fallidos, bloqueos temporales, cierres de sesión y cambios de
-     * estado de usuario (ver REGLAS-PROYECTO.md sección 5 / plan Módulo D).
-     */
     static public function registrarBitacora($bitTipo, $bitprograma, $bitdescripcion, $bitobservacion = null, $usercod = null)
     {
         $sqlIns = "INSERT INTO `bitacora`
@@ -124,11 +105,6 @@ class Security extends \Dao\Table
         );
     }
 
-    /**
-     * Cuenta los intentos fallidos de login (bitTipo = ERR) registrados para
-     * un correo dentro de la ventana de minutos indicada. Usado para el
-     * bloqueo temporal de cuenta tras múltiples intentos fallidos.
-     */
     static public function contarIntentosFallidos($email, $minutos, $bitprograma)
     {
         $sqlstr = "SELECT COUNT(*) as total FROM `bitacora`
@@ -171,21 +147,20 @@ class Security extends \Dao\Table
         );
     }
 
-
     static private function _usuarioStruct()
     {
         return array(
-            "usercod"      => "",
-            "useremail"    => "",
-            "username"     => "",
-            "userpswd"     => "",
-            "userfching"   => "",
-            "userpswdest"  => "",
-            "userpswdexp"  => "",
-            "userest"      => "",
-            "useractcod"   => "",
-            "userpswdchg"  => "",
-            "usertipo"     => "",
+            "usercod" => "",
+            "useremail" => "",
+            "username" => "",
+            "userpswd" => "",
+            "userfching" => "",
+            "userpswdest" => "",
+            "userpswdexp" => "",
+            "userest" => "",
+            "useractcod" => "",
+            "userpswdchg" => "",
+            "usertipo" => "",
         );
     }
 
@@ -281,7 +256,7 @@ class Security extends \Dao\Table
 
     static public function removeRolFromUser($userCod, $rolescod)
     {
-        $sqldel = "UPDATE roles_usuarios set roleuserest='INA' 
+        $sqldel = "UPDATE roles_usuarios set roleuserest='INA'
         where rolescod=:rolescod and usercod=:usercod;";
         return self::executeNonQuery(
             $sqldel,
@@ -304,7 +279,7 @@ class Security extends \Dao\Table
             (`usercod`, `rolescod`, `roleuserest`, `roleuserfch`)
             VALUES (:usercod, :rolescod, 'ACT', NOW());";
         return self::executeNonQuery($sqlins, array(
-            "usercod"  => $usercod,
+            "usercod" => $usercod,
             "rolescod" => $rolescod,
         ));
     }
@@ -322,6 +297,5 @@ class Security extends \Dao\Table
     {
     }
 }
-
 
 ?>

@@ -2,11 +2,6 @@
 
 namespace Utilities\Security;
 
-/**
- * Implementación mínima de TOTP (RFC 6238) sobre HMAC-SHA1 (RFC 4226),
- * compatible con Google Authenticator y apps equivalentes. No depende de
- * ninguna librería de Composer — el proyecto no trae SDK de 2FA instalado.
- */
 class TOTP
 {
     const PERIODO_SEGUNDOS = 30;
@@ -19,10 +14,6 @@ class TOTP
         return self::base32Encode(random_bytes($longitudBytes));
     }
 
-    /**
-     * URI otpauth:// estándar para escanear con Google Authenticator (o
-     * ingresar la clave manualmente si no hay lector de QR disponible).
-     */
     public static function getProvisioningUri($email, $issuer, $secret)
     {
         $label = rawurlencode($issuer . ":" . $email);
@@ -54,11 +45,6 @@ class TOTP
         return str_pad((string)($valor % $modulo), self::DIGITOS, "0", STR_PAD_LEFT);
     }
 
-    /**
-     * Verifica un código con una ventana de tolerancia (por defecto 1 paso
-     * hacia atrás/adelante = 30s) para absorber pequeños desfases de reloj
-     * entre el servidor y el teléfono del usuario.
-     */
     public static function verifyCode($secret, $codigo, $tolerancia = 1)
     {
         $codigo = trim((string)$codigo);

@@ -18,15 +18,15 @@ class Edit extends PrivateController
         }
 
         $errors = [];
-        $form   = $producto;
+        $form = $producto;
 
         if ($this->isPostBack()) {
-            $form['productName']        = trim($_POST['productName'] ?? '');
+            $form['productName'] = trim($_POST['productName'] ?? '');
             $form['productDescription'] = trim($_POST['productDescription'] ?? '');
-            $form['productPrice']       = trim($_POST['productPrice'] ?? '');
-            $form['productStock']       = (int)($_POST['productStock'] ?? 0);
-            $form['productStatus']      = in_array($_POST['productStatus'] ?? '', ['ACT', 'INA', 'AGO']) ? $_POST['productStatus'] : 'ACT';
-            $form['categoryId']         = isset($_POST['categoryId']) && $_POST['categoryId'] !== '' ? (int)$_POST['categoryId'] : null;
+            $form['productPrice'] = trim($_POST['productPrice'] ?? '');
+            $form['productStock'] = (int)($_POST['productStock'] ?? 0);
+            $form['productStatus'] = in_array($_POST['productStatus'] ?? '', ['ACT', 'INA', 'AGO']) ? $_POST['productStatus'] : 'ACT';
+            $form['categoryId'] = isset($_POST['categoryId']) && $_POST['categoryId'] !== '' ? (int)$_POST['categoryId'] : null;
 
             $newImg = $this->uploadImage($errors);
             $form['productImgUrl'] = $newImg !== '' ? $newImg : trim($_POST['productImgUrlActual'] ?? '');
@@ -53,10 +53,10 @@ class Edit extends PrivateController
 
         \Views\Renderer::render("products/form", array_merge($form, $errors, [
             'categorias' => $categorias,
-            'formTitle'  => 'Editar Producto',
+            'formTitle' => 'Editar Producto',
             'formAction' => 'index.php?page=Products_Edit&id=' . $productId,
-            'isEdit'     => 1,
-            'isACT'      => ($form['productStatus'] === 'ACT') ? 1 : 0,
+            'isEdit' => 1,
+            'isACT' => ($form['productStatus'] === 'ACT') ? 1 : 0,
         ]));
     }
 
@@ -71,7 +71,7 @@ class Edit extends PrivateController
             return '';
         }
         $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'];
-        $mime    = mime_content_type($file['tmp_name']);
+        $mime = mime_content_type($file['tmp_name']);
         if (!isset($allowed[$mime])) {
             $errors['errorImg'] = 'Solo se permiten imágenes JPG, PNG, WEBP o GIF.';
             return '';
@@ -81,7 +81,7 @@ class Edit extends PrivateController
             return '';
         }
         $filename = uniqid('p', true) . '.' . $allowed[$mime];
-        $dest     = __DIR__ . '/../../../public/imgs/products/' . $filename;
+        $dest = __DIR__ . '/../../../public/imgs/products/' . $filename;
         if (!move_uploaded_file($file['tmp_name'], $dest)) {
             $errors['errorImg'] = 'No se pudo guardar la imagen.';
             return '';

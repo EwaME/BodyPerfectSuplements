@@ -1,7 +1,4 @@
-/* ===== BodyPerfect - Modulo de Seguridad (login, registro, 2FA) =====
-   Estilos aislados a las pantallas de autenticacion (clase .bp-auth).
-   Reutiliza la paleta ya definida en tienda.css (--bp-primary / --bp-accent)
-   para mantener consistencia visual con el resto del sitio. */
+
 
 .bp-auth {
   width: 100%;
@@ -17,7 +14,6 @@
   margin: 0 auto;
 }
 
-/* ---------- Encabezado ---------- */
 .bp-auth .bp-auth-head {
   padding: 1.5rem 0 1.25rem;
   border-bottom: 1px solid #e5e7eb;
@@ -52,7 +48,6 @@
   margin-top: 0.35rem;
 }
 
-/* ---------- Cuerpo ---------- */
 .bp-auth .bp-auth-body {
   padding: 0 0.25rem;
 }
@@ -121,7 +116,6 @@
   transform: translateY(-2px);
 }
 
-/* ---------- Bloque de instrucciones 2FA ---------- */
 .bp-auth .bp-auth-steps {
   margin: 0 0 1.25rem;
   padding-left: 1.4rem;

@@ -2,14 +2,6 @@
 
 namespace Dao\Security;
 
-/*
-two_factor_secrets
-id        int AI PK
-usercod   bigint(10)
-secret    varchar(32)
-activado  tinyint(1)
-*/
-
 class TwoFactor extends \Dao\Table
 {
     static public function getByUsuario($usercod)
@@ -24,11 +16,6 @@ class TwoFactor extends \Dao\Table
         return $fila && (int)$fila["activado"] === 1;
     }
 
-    /**
-     * Guarda (o reemplaza) el secreto TOTP del usuario y lo marca como
-     * activado. Se usa cuando el usuario confirma el primer código válido
-     * generado por su app de autenticación.
-     */
     static public function guardarYActivar($usercod, $secret)
     {
         $existente = self::getByUsuario($usercod);

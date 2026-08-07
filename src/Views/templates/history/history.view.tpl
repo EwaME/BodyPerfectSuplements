@@ -11,7 +11,6 @@
 
   <p style="color:#666;margin-top:-1rem;margin-bottom:1.25rem;">Revisa tus compras realizadas y el estado de cada pedido.</p>
 
-  <!-- Filtro por estado -->
   <form method="GET" action="index.php" class="bp-admin-filter-bar">
     <input type="hidden" name="page" value="History_History" />
     <div class="bp-admin-status-tabs">

@@ -6,14 +6,12 @@ use Dao\Table;
 
 class History extends Table
 {
-    /**
-     * Obtiene el listado de pedidos de un usuario con paginación y filtro por estado.
-     */
+
     public static function getTransaccionesPorUsuario($usercod, $page = 1, $perPage = 10, $estado = null)
     {
         $offset = ($page - 1) * $perPage;
         $params = array("usercod" => $usercod);
-        
+
         $whereState = "";
         if ($estado !== null && $estado !== "" && $estado !== "ALL") {
             $whereState = " AND p.estado = :estado";
@@ -32,9 +30,6 @@ class History extends Table
         return self::obtenerRegistros($sql, $params);
     }
 
-    /**
-     * Cuenta el total de pedidos de un usuario para calcular totalPages.
-     */
     public static function countTransaccionesPorUsuario($usercod, $estado = null)
     {
         $params = array("usercod" => $usercod);
@@ -49,9 +44,6 @@ class History extends Table
         return intval($row["total"] ?? 0);
     }
 
-    /**
-     * Obtiene los datos generales de un pedido asegurándose de que pertenezca al usuario.
-     */
     public static function getPedidoUsuario($pedidoId, $usercod)
     {
         $sql = "SELECT p.id, p.usercod, p.total, p.estado, p.fecha,
@@ -59,13 +51,10 @@ class History extends Table
                 FROM pedidos p
                 LEFT JOIN transacciones t ON t.pedidoId = p.id
                 WHERE p.id = :pedidoId AND p.usercod = :usercod;";
-        
+
         return self::obtenerUnRegistro($sql, array("pedidoId" => $pedidoId, "usercod" => $usercod));
     }
 
-    /**
-     * Obtiene el desglose de productos de un pedido del usuario.
-     */
     public static function getDetallePedidoUsuario($pedidoId, $usercod)
     {
         $sql = "SELECT pd.id, pd.pedidoId, pd.productId, pd.cantidad, pd.precioUnitario,
@@ -80,9 +69,6 @@ class History extends Table
         return self::obtenerRegistros($sql, array("pedidoId" => $pedidoId, "usercod" => $usercod));
     }
 
-    /**
-     * Vista Administrativa: Obtiene todas las transacciones del sistema con filtros de búsqueda, estado y rango de fechas.
-     */
     public static function getAllTransaccionesAdmin($search = '', $estado = '', $fechaInicio = '', $fechaFin = '', $page = 1, $perPage = 10)
     {
         $offset = ($page - 1) * $perPage;
@@ -125,9 +111,6 @@ class History extends Table
         return self::obtenerRegistros($sql, $params);
     }
 
-    /**
-     * Conteo total de transacciones para paginación administrativa.
-     */
     public static function countAllTransaccionesAdmin($search = '', $estado = '', $fechaInicio = '', $fechaFin = '')
     {
         $params = array();
@@ -165,9 +148,6 @@ class History extends Table
         return intval($row["total"] ?? 0);
     }
 
-    /**
-     * Obtiene pedido para vista admin sin restringir por usercod.
-     */
     public static function getPedidoAdmin($pedidoId)
     {
         $sql = "SELECT p.id, p.usercod, p.total, p.estado, p.fecha,
@@ -181,9 +161,6 @@ class History extends Table
         return self::obtenerUnRegistro($sql, array("pedidoId" => $pedidoId));
     }
 
-    /**
-     * Obtiene detalle para vista admin sin restringir por usercod.
-     */
     public static function getDetallePedidoAdmin($pedidoId)
     {
         $sql = "SELECT pd.id, pd.pedidoId, pd.productId, pd.cantidad, pd.precioUnitario,

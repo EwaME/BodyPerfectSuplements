@@ -17,7 +17,6 @@
     {{endif hasTransacciones}}
   </div>
 
-  <!-- Filtros -->
   <form method="GET" action="index.php" class="bp-filter-card">
     <input type="hidden" name="page" value="History_Admin" />
     <div class="bp-filter-grid">

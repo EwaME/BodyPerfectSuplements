@@ -1,6 +1,5 @@
 <div class="container-m py-5">
 
-  <!-- Breadcrumb -->
   <nav class="bp-breadcrumb">
     <a href="index.php">Inicio</a>
     <span>/</span>
@@ -11,7 +10,6 @@
 
   <div class="bp-detail-grid">
 
-    <!-- Imagen -->
     <div class="bp-detail-img-wrap">
       {{if productImgUrl}}
       <img src="{{~BASE_DIR}}/public/imgs/products/{{productImgUrl}}"
@@ -25,7 +23,6 @@
       {{endifnot productImgUrl}}
     </div>
 
-    <!-- Info -->
     <div class="bp-detail-info">
 
       {{if categoryName}}
@@ -34,7 +31,6 @@
 
       <h1 class="bp-detail-name">{{productName}}</h1>
 
-      <!-- Precio -->
       <div class="bp-detail-price-block">
         {{if hasSale}}
         <span class="bp-detail-price-original">L. {{productPrice}}</span>
@@ -46,7 +42,6 @@
         {{endifnot hasSale}}
       </div>
 
-      <!-- Stock / estado -->
       <div class="bp-detail-stock">
         {{if isAgotado}}
         <span class="bp-detail-oos"><i class="fas fa-times-circle"></i> Agotado</span>
@@ -56,12 +51,10 @@
         {{endifnot isAgotado}}
       </div>
 
-      <!-- Descripción -->
       {{if productDescription}}
       <p class="bp-detail-desc">{{productDescription}}</p>
       {{endif productDescription}}
 
-      <!-- Acciones -->
       <div class="bp-detail-actions">
         {{ifnot isAgotado}}
         <a href="index.php?page=Checkout_Cart&action=add&id={{productId}}" class="bp-btn-cta bp-detail-btn-cart">
@@ -82,7 +75,6 @@
   </div>
 </div>
 
-<!-- ===== RESEÑAS ===== -->
 <div class="container-m" style="padding:0 1rem 3rem;">
   <div class="bp-reviews-section">
 
@@ -93,7 +85,6 @@
       {{endif hayReviews}}
     </h2>
 
-    <!-- Formulario: solo si compró y no ha reseñado -->
     {{if puedeResenar}}
     <form class="bp-review-form" method="post" action="index.php?page=Reviews_Review">
       <input type="hidden" name="productId" value="{{productId}}" />
@@ -125,7 +116,6 @@
     </p>
     {{endifnot isLogged}}
 
-    <!-- Lista de reseñas -->
     {{if hayReviews}}
     <div class="bp-review-list">
       {{foreach reviews}}

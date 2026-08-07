@@ -1,12 +1,6 @@
 <?php
 namespace Controllers\Sec;
 
-/**
- * Paso intermedio de login para usuarios ADM con 2FA activado. Login.php
- * ya validó la contraseña y dejó el usercod pendiente vía
- * Utilities\Security::setPendingTwoFactorUser(), SIN completar el login
- * (Utilities\Security::login todavía no se llamó).
- */
 class TwoFactorVerify extends \Controllers\PublicController
 {
     private $errorCode = "";

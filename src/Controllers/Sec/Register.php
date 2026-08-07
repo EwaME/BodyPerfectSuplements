@@ -9,27 +9,27 @@ use Exception;
 class Register extends PublicController
 {
     private $txtNombre = "";
-    private $txtEmail  = "";
-    private $txtPswd   = "";
+    private $txtEmail = "";
+    private $txtPswd = "";
     private $errorNombre = "";
-    private $errorEmail  = "";
-    private $errorPswd   = "";
-    private $hasErrors   = false;
+    private $errorEmail = "";
+    private $errorPswd = "";
+    private $hasErrors = false;
 
     public function run() :void
     {
         if ($this->isPostBack()) {
             $this->txtNombre = trim($_POST["txtNombre"] ?? "");
-            $this->txtEmail  = $_POST["txtEmail"]  ?? "";
-            $this->txtPswd   = $_POST["txtPswd"]   ?? "";
+            $this->txtEmail = $_POST["txtEmail"] ?? "";
+            $this->txtPswd = $_POST["txtPswd"] ?? "";
 
             if ($this->txtNombre === "") {
                 $this->errorNombre = "El nombre es requerido.";
-                $this->hasErrors   = true;
+                $this->hasErrors = true;
             }
             if (!(Validators::IsValidEmail($this->txtEmail))) {
                 $this->errorEmail = "El correo no tiene el formato adecuado";
-                $this->hasErrors  = true;
+                $this->hasErrors = true;
             }
             if (!Validators::IsValidPassword($this->txtPswd)) {
                 $this->errorPswd = "La contraseña debe tener al menos 8 caracteres una mayúscula, un número y un caracter especial.";

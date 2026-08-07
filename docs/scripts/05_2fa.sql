@@ -1,12 +1,11 @@
--- Módulo D Extra: 2FA / TOTP para rol admin
--- Depende de: usuario (01_security.sql)
+
 
 CREATE TABLE
     `two_factor_secrets` (
-        `id`       int(11)     NOT NULL AUTO_INCREMENT,
-        `usercod`  bigint(10)  NOT NULL,
-        `secret`   varchar(32) NOT NULL,
-        `activado` tinyint(1)  NOT NULL DEFAULT 0,
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `usercod` bigint(10) NOT NULL,
+        `secret` varchar(32) NOT NULL,
+        `activado` tinyint(1) NOT NULL DEFAULT 0,
         PRIMARY KEY (`id`),
         UNIQUE KEY `two_factor_user_unique` (`usercod`),
         CONSTRAINT `two_factor_user_key` FOREIGN KEY (`usercod`)

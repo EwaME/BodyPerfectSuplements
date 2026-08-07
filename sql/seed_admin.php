@@ -1,20 +1,11 @@
 <?php
-/**
- * Genera el INSERT del usuario administrador inicial.
- *
- * USO:
- *   1. Asegúrate de que parameters.env ya tiene PWD_HASH configurado.
- *   2. Edita $pwdHash abajo con el mismo valor de PWD_HASH en tu .env.
- *   3. Ejecuta: php sql/seed_admin.php
- *   4. Copia el INSERT que imprime y ejecútalo en tu BD.
- */
 
-$email   = 'admin@bodyperfect.com';
-$nombre  = 'Administrador';
-$rawPwd  = 'Admin1234!';
-$pwdHash = 'BodyPerfect2026SecretHash'; // <-- mismo valor que PWD_HASH en parameters.env
+$email = 'admin@bodyperfect.com';
+$nombre = 'Administrador';
+$rawPwd = 'Admin1234!';
+$pwdHash = 'BodyPerfect2026SecretHash';
 
-$salt   = hash_hmac('sha256', $rawPwd, $pwdHash);
+$salt = hash_hmac('sha256', $rawPwd, $pwdHash);
 $hashed = password_hash($salt, PASSWORD_BCRYPT);
 $actCod = hash('sha256', $email . time());
 $pwdExp = date('Y-m-d H:i:s', strtotime('+90 days'));

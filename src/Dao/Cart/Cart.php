@@ -9,7 +9,6 @@ class Cart extends \Dao\Table
         $sqlAllProductosActivos = "SELECT * from products where productStatus in ('ACT');";
         $productosDisponibles = self::obtenerRegistros($sqlAllProductosActivos, array());
 
-        //Sacar el stock de productos con carretilla autorizada
         $deltaAutorizada = \Utilities\Cart\CartFns::getAuthTimeDelta();
         $sqlCarretillaAutorizada = "select productId, sum(crrctd) as reserved
             from carretilla where TIME_TO_SEC(TIMEDIFF(now(), crrfching)) <= :delta
@@ -18,7 +17,7 @@ class Cart extends \Dao\Table
             $sqlCarretillaAutorizada,
             array("delta" => $deltaAutorizada)
         );
-        //Sacar el stock de productos con carretilla no autorizada
+
         $deltaNAutorizada = \Utilities\Cart\CartFns::getUnAuthTimeDelta();
         $sqlCarretillaNAutorizada = "select productId, sum(crrctd) as reserved
             from carretillaanon where TIME_TO_SEC(TIMEDIFF(now(), crrfching)) <= :delta
@@ -54,7 +53,6 @@ class Cart extends \Dao\Table
         $sqlAllProductosActivos = "SELECT * from products where productStatus in ('ACT') and productId=:productId;";
         $productosDisponibles = self::obtenerRegistros($sqlAllProductosActivos, array("productId" => $productId));
 
-        //Sacar el stock de productos con carretilla autorizada
         $deltaAutorizada = \Utilities\Cart\CartFns::getAuthTimeDelta();
         $sqlCarretillaAutorizada = "select productId, sum(crrctd) as reserved
             from carretilla where productId=:productId and TIME_TO_SEC(TIMEDIFF(now(), crrfching)) <= :delta
@@ -63,7 +61,7 @@ class Cart extends \Dao\Table
             $sqlCarretillaAutorizada,
             array("productId" => $productId, "delta" => $deltaAutorizada)
         );
-        //Sacar el stock de productos con carretilla no autorizada
+
         $deltaNAutorizada = \Utilities\Cart\CartFns::getUnAuthTimeDelta();
         $sqlCarretillaNAutorizada = "select productId, sum(crrctd) as reserved
             from carretillaanon where productId = :productId and TIME_TO_SEC(TIMEDIFF(now(), crrfching)) <= :delta
@@ -101,10 +99,6 @@ class Cart extends \Dao\Table
         return $productosDisponibles;
     }
 
-    /**
-     * Cantidad que el propio dueño (usercod o anoncod) ya tiene en su carrito
-     * para ese producto, sin importar si su fila sigue vigente por TTL.
-     */
     private static function getMiCantidadEnCarretilla($usercod, $anoncod, $productId)
     {
         if ($usercod > 0) {
@@ -117,11 +111,6 @@ class Cart extends \Dao\Table
         return $fila ? (int)$fila["crrctd"] : 0;
     }
 
-    /**
-     * Agrega (o incrementa) un producto en el carrito del usuario/anónimo,
-     * validando que la cantidad final no exceda el stock disponible.
-     * Retorna array("ok" => bool, "error" => string|null).
-     */
     public static function addItem($usercod, $anoncod, $productId, $cantidad)
     {
         $cantidad = (int)$cantidad;
@@ -172,9 +161,6 @@ class Cart extends \Dao\Table
         return array("ok" => true, "error" => null);
     }
 
-    /**
-     * Fija la cantidad exacta de un producto en el carrito (edición desde la vista).
-     */
     public static function updateCantidad($usercod, $anoncod, $productId, $cantidad)
     {
         $cantidad = (int)$cantidad;
@@ -221,10 +207,6 @@ class Cart extends \Dao\Table
         return array("ok" => true, "error" => null);
     }
 
-    /**
-     * Trae los items vigentes del carrito (autenticado o anónimo) con datos
-     * de producto, subtotal por línea, y bandera de si excede el stock actual.
-     */
     public static function getCarrito($usercod, $anoncod)
     {
         if ($usercod > 0) {
@@ -280,10 +262,6 @@ class Cart extends \Dao\Table
         );
     }
 
-    /**
-     * Vincula el carrito anónimo con el usuario recién autenticado,
-     * sumando cantidades si ya existía el mismo producto, sin exceder stock.
-     */
     public static function mergeAnonToAuth($anoncod, $usercod)
     {
         if (empty($anoncod) || !$usercod) {
@@ -292,8 +270,6 @@ class Cart extends \Dao\Table
         $sql = "select productId, crrctd from carretillaanon where anoncod = :anoncod;";
         $itemsAnon = self::obtenerRegistros($sql, array("anoncod" => $anoncod));
 
-        // Se borra primero para que el cálculo de stock disponible en addItem()
-        // no reste la propia reserva anónima que se está por trasladar.
         $sqlDelete = "delete from carretillaanon where anoncod = :anoncod;";
         self::executeNonQuery($sqlDelete, array("anoncod" => $anoncod));
 
@@ -302,12 +278,6 @@ class Cart extends \Dao\Table
         }
     }
 
-    /**
-     * Segunda validación de stock (la primera es en addItem/updateCantidad),
-     * obligatoria justo antes de confirmar el pago: no confiar en que el
-     * carrito siga vigente solo porque se validó al momento de agregarlo.
-     * Retorna un array de problemas (vacío si todo está OK para pagar).
-     */
     public static function validarCarrito($usercod, $anoncod)
     {
         if ($usercod > 0) {

@@ -48,9 +48,7 @@ class Login extends \Controllers\PublicController
                             $dbUser["usercod"]
                         );
                     } elseif ($this->requiereDobleFactor($dbUser)) {
-                        // Contraseña correcta, pero el rol admin tiene 2FA activo:
-                        // se guarda el usuario "pendiente" y se completa el login
-                        // solo si el codigo TOTP es valido (Controllers\Sec\TwoFactorVerify).
+
                         session_regenerate_id(true);
                         \Utilities\Security::setPendingTwoFactorUser($dbUser["usercod"]);
                         \Utilities\Site::redirectTo("index.php?page=sec_twofactorverify");
@@ -116,7 +114,7 @@ class Login extends \Controllers\PublicController
 
     private function completarLogin($dbUser)
     {
-        // Regenera el session_id tras autenticar para prevenir session fixation.
+
         session_regenerate_id(true);
 
         \Utilities\Security::login(

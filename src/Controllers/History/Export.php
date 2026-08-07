@@ -16,7 +16,7 @@ class Export extends PrivateController
             $pedidoId = isset($_GET["id"]) ? (int)$_GET["id"] : 0;
             $pedido = \Dao\History\History::getPedidoUsuario($pedidoId, $usercod);
             if (!$pedido) {
-             
+
                 $pedido = \Dao\History\History::getPedidoAdmin($pedidoId);
                 $detalle = \Dao\History\History::getDetallePedidoAdmin($pedidoId);
             } else {
@@ -48,7 +48,7 @@ class Export extends PrivateController
             fclose($output);
             exit();
         } elseif ($type === "admin") {
-           
+
             $search = isset($_GET["q"]) ? trim($_GET["q"]) : "";
             $estado = isset($_GET["estado"]) ? trim($_GET["estado"]) : "";
             $fechaInicio = isset($_GET["fechaInicio"]) ? trim($_GET["fechaInicio"]) : "";
@@ -79,7 +79,7 @@ class Export extends PrivateController
             fclose($output);
             exit();
         } else {
-       
+
             $estado = isset($_GET["estado"]) ? trim($_GET["estado"]) : "";
             $pedidos = \Dao\History\History::getTransaccionesPorUsuario($usercod, 1, 1000, $estado);
 

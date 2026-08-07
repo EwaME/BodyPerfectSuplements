@@ -56,7 +56,7 @@ class Detail extends PrivateController
 
         $fromAdmin = isset($_GET["from"]) && $_GET["from"] === "admin";
         $isOwner = \Dao\History\History::getPedidoUsuario($pedidoId, $usercod);
-        
+
         if ($fromAdmin || !$isOwner) {
             $returnUrl = "index.php?page=History_Admin";
             $returnText = "Volver al Panel Admin";

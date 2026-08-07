@@ -42,13 +42,13 @@ class Reviews extends \Dao\Table
         $sql = "INSERT INTO reviews (productId, usercod, calificacion, comentario)
                 VALUES (:productId, :usercod, :calificacion, :comentario);";
         return self::executeNonQuery($sql, [
-            'productId'    => $productId,
-            'usercod'      => $usercod,
+            'productId' => $productId,
+            'usercod' => $usercod,
             'calificacion' => $calificacion,
-            'comentario'   => $comentario,
+            'comentario' => $comentario,
         ]);
     }
 
     private function __construct() {}
-    private function __clone()    {}
+    private function __clone() {}
 }

@@ -1,4 +1,4 @@
-<!-- ===== BANNER ===== -->
+
 <div class="bp-cat-banner">
   <div class="bp-cat-banner-bg"></div>
   <div class="container-m bp-cat-banner-inner">
@@ -19,7 +19,6 @@
   </div>
 </div>
 
-<!-- ===== MAIN ===== -->
 <div class="container-m" style="padding:1.5rem 1rem 3rem;">
 <script>window.__BP_BASE = '{{~BASE_DIR}}';</script>
 
@@ -29,7 +28,6 @@
 
     <div class="bp-catalog-layout">
 
-      <!-- ===== SIDEBAR ===== -->
       <aside class="bp-filter-sidebar">
 
         <div class="bp-sidebar-head">
@@ -39,7 +37,6 @@
           </a>
         </div>
 
-        <!-- Categorías -->
         <div class="bp-sidebar-block">
           <div class="bp-sidebar-label">
             <i class="fas fa-tag"></i>&nbsp;Categoría
@@ -58,7 +55,6 @@
           </div>
         </div>
 
-        <!-- Precio -->
         <div class="bp-sidebar-block bp-price-block-filter">
           <div class="bp-sidebar-label">
             <i class="fas fa-coins"></i>&nbsp;Precio (L.)
@@ -91,7 +87,6 @@
 
       </aside>
 
-      <!-- ===== MAIN GRID ===== -->
       <div class="bp-catalog-main">
 
         {{if productos}}
@@ -134,14 +129,14 @@
 
 <script>
 (function () {
-  var form      = document.getElementById('bp-filter-form');
+  var form = document.getElementById('bp-filter-form');
   var searchVis = document.getElementById('bp-search-input');
   var searchHid = document.getElementById('bp-filter-q');
-  var clearBtn  = document.getElementById('bp-search-clear');
-  var dropdown  = document.getElementById('bp-search-dropdown');
-  var cats      = form.querySelectorAll('input[name="cat"]');
-  var priceMin  = document.getElementById('bp-price-min');
-  var priceMax  = document.getElementById('bp-price-max');
+  var clearBtn = document.getElementById('bp-search-clear');
+  var dropdown = document.getElementById('bp-search-dropdown');
+  var cats = form.querySelectorAll('input[name="cat"]');
+  var priceMin = document.getElementById('bp-price-min');
+  var priceMax = document.getElementById('bp-price-max');
   var submitTimer, acTimer;
 
   function escHtml(s) {
@@ -197,7 +192,7 @@
     acTimer = setTimeout(function () { fetchAutocomplete(searchVis.value); }, 280);
   });
   searchVis.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter')  { e.preventDefault(); hideDropdown(); submitForm(); }
+    if (e.key === 'Enter') { e.preventDefault(); hideDropdown(); submitForm(); }
     if (e.key === 'Escape') { hideDropdown(); }
   });
   searchVis.addEventListener('focus', function () {

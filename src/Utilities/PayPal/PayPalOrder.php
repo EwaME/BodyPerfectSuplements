@@ -88,8 +88,8 @@ class PayPalOrder
         $total = (float) $this->_body["purchase_units"][0]["amount"]["value"];
 
         $this->_body["purchase_units"][0]["items"][] = $newItem;
-        $itemTotal += ((float) $newItem["unit_amount"]["value"]  *  (float) $newItem["quantity"]);
-        $taxTotal += ((float) $newItem["tax"]["value"]  *  (float) $newItem["quantity"]);
+        $itemTotal += ((float) $newItem["unit_amount"]["value"] * (float) $newItem["quantity"]);
+        $taxTotal += ((float) $newItem["tax"]["value"] * (float) $newItem["quantity"]);
         $total = $itemTotal + $taxTotal;
 
         $this->_body["purchase_units"][0]["amount"]["breakdown"]["item_total"]["value"] = (string) $itemTotal;
@@ -97,7 +97,7 @@ class PayPalOrder
         $this->_body["purchase_units"][0]["amount"]["value"] = (string) $total;
     }
 
-    public function  __construct($referenceID, $cancel_url, $return_url)
+    public function __construct($referenceID, $cancel_url, $return_url)
     {
         $this->_body["purchase_units"][] = $this->_purchaseUnitTemplate;
         $this->_body["purchase_units"][0]["reference_id"] = (string) $referenceID;

@@ -61,12 +61,12 @@ class PayPalRestApi
             $msg = $response->error_description ?? ($response->error ?? 'PayPal auth failed');
             throw new \RuntimeException("PayPal: $msg");
         }
-        $this->_token           = $response->access_token;
+        $this->_token = $response->access_token;
         $this->_tokenExpiration = time() + $response->expires_in;
-        $this->_tokenType       = $response->token_type;
-        $this->_tokenScope      = $response->scope       ?? '';
-        $this->_tokenAppId      = $response->app_id      ?? '';
-        $this->_tokenNonce      = $response->nonce        ?? '';
+        $this->_tokenType = $response->token_type;
+        $this->_tokenScope = $response->scope ?? '';
+        $this->_tokenAppId = $response->app_id ?? '';
+        $this->_tokenNonce = $response->nonce ?? '';
     }
     public function createOrder(PayPalOrder $order)
     {

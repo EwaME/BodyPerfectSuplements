@@ -7,9 +7,9 @@ class Products extends PublicController
 {
     public function run(): void
     {
-        $page = isset($_GET['p']) ? max(1, (int)$_GET['p'])        : 1;
-        $search = isset($_GET['q']) ? trim($_GET['q'])                : '';
-        $catId = isset($_GET['cat']) && $_GET['cat']      !== '' ? (int)$_GET['cat']      : null;
+        $page = isset($_GET['p']) ? max(1, (int)$_GET['p']) : 1;
+        $search = isset($_GET['q']) ? trim($_GET['q']) : '';
+        $catId = isset($_GET['cat']) && $_GET['cat'] !== '' ? (int)$_GET['cat'] : null;
         $minPrice = isset($_GET['minPrice']) && $_GET['minPrice'] !== '' ? (float)$_GET['minPrice'] : null;
         $maxPrice = isset($_GET['maxPrice']) && $_GET['maxPrice'] !== '' ? (float)$_GET['maxPrice'] : null;
 
